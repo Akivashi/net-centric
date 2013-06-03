@@ -9,12 +9,10 @@ int main() {
 	DigitalOut leds[] = {(LED1), (LED2), (LED3), (LED4)};
 
 	float value = 0.3;
-	int increase = 1;
-
-	float margin = 0.05;
+	float margin;
 	
     while(1) {
-		margin = value / 100.0;
+		margin = value / 1000.0;
 		if(ain.read() >= value - margin && ain.read() <= value + margin) {
 			right = 0;
 			left = 0;
@@ -27,10 +25,41 @@ int main() {
 				leds[(3-i)] = 1;
 			}
 
-			wait(1.0);
+			wait(0.9);
 
 			for(int i = 0; i < 4; i++) {
 				leds[i] = 0;
+			}
+
+			wait(0.3);
+
+			for(int i = 0; i < 4; i++) {
+				for(int j = 0; j < (4-i); j++) {
+					leds[(3-j)] = 1;
+					wait(0.2);
+					leds[(3-j)] = 0;
+				}
+				leds[i] = 1;
+			}
+
+			wait(0.9);
+
+			for(int i = 0; i < 4; i++) {
+				leds[i] = 0;
+			}
+
+			for(int j = 0; j < 3; j++) {
+				wait(0.4);
+
+				for(int i = 0; i < 4; i++) {
+					leds[i] = 1;
+				}
+
+				wait(0.5);
+
+				for(int i = 0; i < 4; i++) {
+					leds[i] = 0;
+				}
 			}
 
 			wait(0.5);
