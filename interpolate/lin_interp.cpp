@@ -31,6 +31,10 @@ int main() {
     while(1) {
 		if(value == -1.0) {
 			scanf("%f", &value);
+			if(value == -1.0) {
+				wait(0.5);
+				continue;
+			}
 			value = interpolate(value);
 			printf("New value: %f\n", value);
 			continue;
