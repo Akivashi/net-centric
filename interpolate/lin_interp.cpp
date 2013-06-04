@@ -1,14 +1,10 @@
 #include "mbed.h"
 #include "math.h"
-
-const float values[] = {0.002, 0.0062, 0.018, 0.059, 0.105, 0.152, 0.2, 0.302, 0.504, 0.745, 0.996};
-
-AnalogIn ain(p16);
-DigitalOut left(p15);
-DigitalOut right(p18);
-DigitalOut myled1(LED1);
+#include <iostream>
 
 float interpolate(float x) {
+	const float values[] = {0.002, 0.0062, 0.018, 0.059, 0.105, 0.152, 0.2, 0.302, 0.504, 0.745, 0.996};
+
 	if(x < 0 || x > 10.0) {
 		return -1.0;
 	}
@@ -26,17 +22,18 @@ float interpolate(float x) {
 }
 
 int main() {
+	AnalogIn ain(p16);
+	DigitalOut left(p15);
+	DigitalOut right(p18);
+	DigitalOut myled1(LED1);
+
 	float value = -1.0;
 	float margin;
     while(1) {
 		if(value == -1.0) {
-			scanf("%f", &value);
-			if(value == -1.0) {
-				wait(0.5);
-				continue;
-			}
+			cin >> value;
 			value = interpolate(value);
-			printf("New value: %f\n", value);
+			cout << "New value: " << value << endl;
 			continue;
 		}
 
