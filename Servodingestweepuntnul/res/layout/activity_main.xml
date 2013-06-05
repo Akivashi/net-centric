@@ -40,33 +40,66 @@
         android:layout_below="@+id/seekBar1" >
     </RadioGroup>
 
-    <SeekBar
-        android:id="@+id/seekBar1"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="80dp"
-        android:progress="@integer/progress" />
+        android:layout_alignLeft="@+id/textView1"
+        android:layout_below="@+id/textView1"
+        android:layout_marginTop="32dp"
+        android:text="System:"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        android:textSize="22sp" />
 
     <TextView
         android:id="@+id/value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
+        android:layout_alignLeft="@+id/right"
+        android:layout_alignTop="@+id/textView1"
         android:gravity="center_horizontal"
         android:text="5.0"
         android:textColor="@color/white"
         android:textSize="26sp" />
 
+    <TextView
+        android:id="@+id/systemval"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/textView2"
+        android:layout_alignLeft="@+id/value"
+        android:gravity="center_horizontal"
+        android:text="5.0"
+        android:textColor="@color/white"
+        android:textSize="26sp" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/left"
+        android:layout_centerVertical="true"
+        android:text="Set to:"
+        android:textColor="@color/white"
+        android:textSize="22sp" />
+
+    <SeekBar
+        android:id="@+id/seekBar1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/value"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="26dp"
+        android:progress="@integer/progress" />
+
     <RadioButton
         android:id="@+id/radio0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_alignRight="@+id/left"
-        android:layout_marginTop="24dp"
+        android:layout_below="@+id/textView2"
+        android:layout_marginTop="50dp"
         android:checked="true"
         android:minHeight="22dp"
         android:text="Local"
@@ -78,7 +111,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/radio0"
         android:layout_alignBottom="@+id/radio0"
-        android:layout_alignRight="@+id/seekBar1"
+        android:layout_alignRight="@+id/right"
         android:text="Remote"
         android:textColor="@color/white" />
 
