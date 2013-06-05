@@ -3,11 +3,11 @@
 # Modified by Ilja Kamps and Robin de Vries for the Net-centric computing course
 
 PROJECT = lin_interp
-OBJECTS = $(patsubst %.cpp,%.o,$(wildcard *.cpp)) 
+OBJECTS = $(patsubst %.cpp,%.o,$(wildcard *.cpp))  ./AndroidAccessory/AndroidAccessory.o ./AndroidAccessory/USBHost/USBHost.o ./AndroidAccessory/USBHost/USBHost_log.o 
 SYS_OBJECTS = ./mbed/LPC1768/GCC_ARM/cmsis_nvic.o ./mbed/LPC1768/GCC_ARM/system_LPC17xx.o ./mbed/LPC1768/GCC_ARM/core_cm3.o ./mbed/LPC1768/GCC_ARM/startup_LPC17xx.o 
-INCLUDE_PATHS = -I. -I./mbed -I./mbed/LPC1768 -I./mbed/LPC1768/GCC_ARM 
+INCLUDE_PATHS = -I. -I./AndroidAccessory -I./AndroidAccessory/USBHost -I./mbed -I./mbed/LPC1768 -I./mbed/LPC1768/GCC_ARM 
 LIBRARY_PATHS = -L./mbed/LPC1768/GCC_ARM 
-LIBRARIES = -lmbed 
+LIBRARIES = -lmbed -lcapi 
 LINKER_SCRIPT = ./mbed/LPC1768/GCC_ARM/LPC1768.ld
 
 ############################################################################### 

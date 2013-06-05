@@ -1,90 +1,102 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* mbed Microcontroller Library - DigitalIn
+ * Copyright (c) 2006-2011 ARM Limited. All rights reserved.
+ */ 
+ 
 #ifndef MBED_DIGITALIN_H
 #define MBED_DIGITALIN_H
 
 #include "platform.h"
-
-#include "gpio_api.h"
+#include "PinNames.h"
+#include "PeripheralNames.h"
+#include "Base.h"
 
 namespace mbed {
 
-/** A digital input, used for reading the state of a pin
+/* Class: DigitalIn
+ *  A digital input, used for reading the state of a pin
  *
  * Example:
- * @code
- * // Flash an LED while a DigitalIn is true
- *
- * #include "mbed.h"
- *
- * DigitalIn enable(p5);
- * DigitalOut led(LED1);
- *
- * int main() {
- *     while(1) {
- *         if(enable) {
- *             led = !led;
- *         }
- *         wait(0.25);
- *     }
- * }
- * @endcode
+ * > // Flash an LED while a DigitalIn is true
+ * >
+ * > #include "mbed.h"
+ * >
+ * > DigitalIn enable(p5);
+ * > DigitalOut led(LED1);
+ * >
+ * > int main() {
+ * >     while(1) {
+ * >         if(enable) {
+ * >             led = !led;
+ * >         }
+ * >         wait(0.25);
+ * >     }
+ * > }
  */
-class DigitalIn {
+class DigitalIn : public Base {
 
 public:
-    /** Create a DigitalIn connected to the specified pin
-     *
-     *  @param pin DigitalIn pin to connect to
-     *  @param name (optional) A string to identify the object
-     */
-    DigitalIn(PinName pin) {
-        gpio_init(&gpio, pin, PIN_INPUT);
-    }
 
-    /** Read the input, represented as 0 or 1 (int)
+    /* Constructor: DigitalIn
+     *  Create a DigitalIn connected to the specified pin
      *
-     *  @returns
-     *    An integer representing the state of the input pin,
-     *    0 for logical 0, 1 for logical 1
+     * Variables:
+     *  pin - DigitalIn pin to connect to
+     *  name - (optional) A string to identify the object
+     */
+    DigitalIn(PinName pin, const char *name = NULL);
+
+    /* Function: read
+     *  Read the input, represented as 0 or 1 (int)
+     *
+     * Variables:
+     *  returns - An integer representing the state of the input pin, 
+     *      0 for logical 0 and 1 for logical 1
      */
     int read() {
-        return gpio_read(&gpio);
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+        return ((_gpio->FIOPIN & _mask) ? 1 : 0);
+#elif defined(TARGET_LPC11U24)
+        return ((LPC_GPIO->PIN[_index] & _mask) ? 1 : 0);
+#endif
     }
 
-    /** Set the input pin mode
+
+    /* Function: mode
+     *  Set the input pin mode
      *
-     *  @param mode PullUp, PullDown, PullNone, OpenDrain
+     * Variables:
+     *  mode - PullUp, PullDown, PullNone, OpenDrain
      */
-    void mode(PinMode pull) {
-        gpio_mode(&gpio, pull);
-    }
-
-#ifdef MBED_OPERATORS
-    /** An operator shorthand for read()
+    void mode(PinMode pull);
+    
+#ifdef MBED_OPERATORS    
+    /* Function: operator int()
+     *  An operator shorthand for <read()>
      */
     operator int() {
         return read();
     }
+
+#endif
+
+#ifdef MBED_RPC
+    virtual const struct rpc_method *get_rpc_methods();
+    static struct rpc_class *get_rpc_class();
 #endif
 
 protected:
-    gpio_t gpio;
+
+    PinName             _pin;
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+    LPC_GPIO_TypeDef    *_gpio;
+#elif defined(TARGET_LPC11U24)
+    int _index;
+#endif
+    uint32_t            _mask;
+
 };
 
 } // namespace mbed
 
 #endif
+
