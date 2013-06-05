@@ -75,10 +75,12 @@ public class MainActivity extends Activity implements OnTouchListener,
 			
 			if(left.getId() == v.getId()) {
 				// left button pressed
-				progress--;
+				if(progress > 0)
+					progress--;
 			} else if(right.getId() == v.getId()) {
 				// right button pressed
-				progress++;
+				if(progress < 100)
+					progress++;
 			}
 			// Set the progress of the seekBar
 			progressBar.setProgress(progress);
@@ -97,6 +99,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 		value.setText("" + arg1 / 10.0);
 		byte[] buf = new byte[1];
 		buf[0] = (byte) arg0.getProgress();
+		Log.i("Send","Sending value: " + arg1);
 		mbedPort.sendBytes(buf);
 	}
 	
