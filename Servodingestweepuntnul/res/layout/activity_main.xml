@@ -94,18 +94,6 @@
         android:progress="@integer/progress" />
 
     <RadioButton
-        android:id="@+id/radio0"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/left"
-        android:layout_below="@+id/textView2"
-        android:layout_marginTop="50dp"
-        android:checked="true"
-        android:minHeight="22dp"
-        android:text="Local"
-        android:textColor="@color/white" />
-
-    <RadioButton
         android:id="@+id/radio1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -113,6 +101,20 @@
         android:layout_alignBottom="@+id/radio0"
         android:layout_alignRight="@+id/right"
         android:text="Remote"
-        android:textColor="@color/white" />
+        android:textColor="@color/white"
+        android:textSize="22sp" />
+
+    <RadioButton
+        android:id="@+id/radio0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView2"
+        android:layout_below="@+id/textView2"
+        android:layout_marginTop="42dp"
+        android:checked="true"
+        android:minHeight="22dp"
+        android:text="Local"
+        android:textColor="@color/white"
+        android:textSize="22sp" />
 
 </RelativeLayout>
