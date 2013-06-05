@@ -52,7 +52,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnSeekBar
     }
 	@Override
 	public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
-		// TODO Auto-generated method stub
+		// Update the value of the TextView to the new value of the seekBar
 		TextView value  =(TextView) findViewById(R.id.value);
 		value.setText("" + arg1/10.0);
 	}
@@ -70,13 +70,18 @@ public class MainActivity extends Activity implements OnTouchListener, OnSeekBar
 	public void onClick(View arg0) {
 		SeekBar progressBar = (SeekBar) findViewById(R.id.seekBar1);
 		int progress = progressBar.getProgress();
-		switch(arg0.getId()){
-			case R.id.left:
-				progress--;
-			case R.id.right:
-				progress++;
+        // left button pressed
+		if( R.id.left == ((Button)arg0).getId() ){
+			progress--;
 		}
+        // right button pressed
+		else if( R.id.right == ((Button)arg0).getId() ){
+			progress++;
+		}
+        // Set the progress of the seekBar
 		progressBar.setProgress(progress);
+		
+        // Set the TextView to the new value
 		TextView value  =(TextView) findViewById(R.id.value);
 		value.setText("" + progress/10.0);
 	}
