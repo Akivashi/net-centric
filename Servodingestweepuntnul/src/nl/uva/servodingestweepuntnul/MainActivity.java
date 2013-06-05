@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -17,9 +16,8 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnTouchListener,
-		OnSeekBarChangeListener, OnClickListener {
+		OnSeekBarChangeListener {
 	private AdkPort mbedPort;
-	
 	
 	// init all buttons background : GRAY
 	public void initButtons() {
@@ -38,8 +36,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 		SeekBar seekbar1 = (SeekBar) findViewById(R.id.seekBar1);
 		button1.setOnTouchListener(this);
 		button2.setOnTouchListener(this);
-		button1.setOnClickListener(this);
-		button2.setOnClickListener(this);
 		seekbar1.setOnSeekBarChangeListener(this);
 		try {
 			mbedPort = new AdkPort(getBaseContext());
@@ -57,10 +53,28 @@ public class MainActivity extends Activity implements OnTouchListener,
 	
 	@Override
 	public boolean onTouch(View v, MotionEvent arg1) {
+		Log.i("touch", "Yay im touched!");
 		if(arg1.getAction() == MotionEvent.ACTION_DOWN)
 			((Button) v).setBackgroundColor(Color.GRAY);
-		else
+		else{
 			((Button) v).setBackgroundColor(Color.WHITE);
+			SeekBar progressBar = (SeekBar) findViewById(R.id.seekBar1);
+			int progress = progressBar.getProgress();
+			// left button pressed
+			if(findViewById(R.id.left).getId() == v.getId()) {
+				progress--;
+			}
+			// right button pressed
+			else if(findViewById(R.id.right).getId() == v.getId()) {
+				progress++;
+			}
+			// Set the progress of the seekBar
+			progressBar.setProgress(progress);
+			
+			// Set the TextView to the new value
+			TextView value = (TextView) findViewById(R.id.value);
+			value.setText("" + progress / 10.0);
+		}
 		return true;
 	}
 	
@@ -80,26 +94,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 		byte[] buf = new byte[1];
 		buf[0] = (byte) bar.getProgress();
 		mbedPort.sendBytes(buf);
-	}
-	
-	@Override
-	public void onClick(View arg0) {
-		SeekBar progressBar = (SeekBar) findViewById(R.id.seekBar1);
-		int progress = progressBar.getProgress();
-		// left button pressed
-		if(findViewById(R.id.left).getId() == arg0.getId()) {
-			progress--;
-		}
-		// right button pressed
-		else if(findViewById(R.id.right).getId() == arg0.getId()) {
-			progress++;
-		}
-		// Set the progress of the seekBar
-		progressBar.setProgress(progress);
-		
-		// Set the TextView to the new value
-		TextView value = (TextView) findViewById(R.id.value);
-		value.setText("" + progress / 10.0);
 	}
 	
 }

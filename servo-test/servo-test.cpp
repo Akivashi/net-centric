@@ -10,8 +10,10 @@ int main() {
 
 	float value = 0.3;
 	float margin;
-	
+	printf("Hello World!\n");
     while(1) {
+		printf("Value is: %lf \n",ain.read());
+		/*
 		margin = value / 1000.0;
 		if(ain.read() >= value - margin && ain.read() <= value + margin) {
 			right = 0;
@@ -74,7 +76,7 @@ int main() {
 				left = 0;
 			}
 		}
-
+*/
 		/*if(change == 1) {
 			if((increase || value < 0.1) && value <= 0.8) {
 				leds[0] = 1;
@@ -89,7 +91,7 @@ int main() {
 			}
 			wait(0.5);
 		}*/
-		value = change;
-		wait(0.01);
+	//	value = change;
+		wait(0.5);
     }
 }
