@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Servodingestweepuntnul</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <color name="black">#000</color>
+    <color name="white">#FFF</color>
+    <color name="grey">#C0C0C0</color>
+
+</resources>
