@@ -11,36 +11,49 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnTouchListener,
-		OnSeekBarChangeListener {
+		OnSeekBarChangeListener, OnCheckedChangeListener {
 	private AdkPort mbedPort;
+	private RadioButton radioButton1;
+	private RadioButton radioButton2;
+	private Button left;
+	private Button right;
 	
-	// init all buttons background : GRAY
-	public void initButtons() {
-		Button button1 = (Button) findViewById(R.id.left);
-		Button button2 = (Button) findViewById(R.id.right);
-		button1.setBackgroundColor(Color.WHITE);
-		button2.setBackgroundColor(Color.WHITE);
-	}
+	private boolean isLocal;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		isLocal = true;
+		
 		setContentView(R.layout.activity_main);
-		Button button1 = (Button) findViewById(R.id.left);
-		Button button2 = (Button) findViewById(R.id.right);
+		left = (Button) findViewById(R.id.left);
+		right = (Button) findViewById(R.id.right);
+		left.setOnTouchListener(this);
+		right.setOnTouchListener(this);
+		
 		SeekBar seekbar1 = (SeekBar) findViewById(R.id.seekBar1);
-		button1.setOnTouchListener(this);
-		button2.setOnTouchListener(this);
 		seekbar1.setOnSeekBarChangeListener(this);
+		
+		radioButton1 = (RadioButton) findViewById(R.id.radio0);
+		radioButton2 = (RadioButton) findViewById(R.id.radio1);
+		radioButton1.setOnCheckedChangeListener(this);
+		radioButton2.setOnCheckedChangeListener(this);
+		
 		try {
 			mbedPort = new AdkPort(getBaseContext());
 		} catch(IOException e) {
-			Log.e("Ding", "Error: ", e);
+			radioButton1.setChecked(false);
+			radioButton2.setChecked(true);
+			isLocal = false;
+			Log.i("SD2", "No mbed? ", e);
 		}
 	}
 	
@@ -53,19 +66,18 @@ public class MainActivity extends Activity implements OnTouchListener,
 	
 	@Override
 	public boolean onTouch(View v, MotionEvent arg1) {
-		Log.i("touch", "Yay im touched!");
 		if(arg1.getAction() == MotionEvent.ACTION_DOWN)
 			((Button) v).setBackgroundColor(Color.GRAY);
-		else{
+		else {
 			((Button) v).setBackgroundColor(Color.WHITE);
 			SeekBar progressBar = (SeekBar) findViewById(R.id.seekBar1);
 			int progress = progressBar.getProgress();
-			// left button pressed
-			if(findViewById(R.id.left).getId() == v.getId()) {
+			
+			if(left.getId() == v.getId()) {
+				// left button pressed
 				progress--;
-			}
-			// right button pressed
-			else if(findViewById(R.id.right).getId() == v.getId()) {
+			} else if(right.getId() == v.getId()) {
+				// right button pressed
 				progress++;
 			}
 			// Set the progress of the seekBar
@@ -96,4 +108,14 @@ public class MainActivity extends Activity implements OnTouchListener,
 	public void onStopTrackingTouch(SeekBar arg0) {
 	}
 	
+	@Override
+	public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
+		if(radioButton1.getId() == arg0.getId()) {
+			radioButton2.setChecked(!arg1);
+			isLocal = arg1;
+		} else if(radioButton2.getId() == arg0.getId()) {
+			radioButton1.setChecked(!arg1);
+			isLocal = !arg1;
+		}
+	}
 }
