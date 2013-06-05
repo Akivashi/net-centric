@@ -11,6 +11,28 @@ DigitalOut myled1(LED1);
 Ticker flipper;
 float value;
 
+
+float interpolate(float x) {
+	const float values[] = {0.002, 0.0062, 0.018, 0.059, 0.105, 0.152, 0.2, 0.302, 0.504, 0.745, 0.996};
+
+	if(x < 0 || x > 10.0) {
+		return -1.0;
+	}
+	cout << x << endl;
+	float ind = floor(x);
+	cout << ind << endl;
+	int indi = (int) ind;
+	cout << indi << endl;
+	if(ind == x) {
+		return values[indi];
+	}
+
+	float low = values[indi];
+	float high = values[indi + 1];
+	float shift = x - ind;
+	return (high - low) * shift + low;
+}
+
 class AdkTerm :public AndroidAccessory
 {
 public:
@@ -38,7 +60,7 @@ void AdkTerm::resetDevice() {
 }
 
 int AdkTerm::callbackRead(u8 *buf, int len) {
-	value = (buf[0] / 10.0);
+	value = interpolate((buf[0] / 10.0));
     return 0;
 }
 
@@ -46,36 +68,16 @@ int AdkTerm::callbackWrite() {
     return 0;
 }
 
-float interpolate(float x) {
-	const float values[] = {0.002, 0.0062, 0.018, 0.059, 0.105, 0.152, 0.2, 0.302, 0.504, 0.745, 0.996};
-
-	if(x < 0 || x > 10.0) {
-		return -1.0;
-	}
-	cout << x << endl;
-	float ind = floor(x);
-	cout << ind << endl;
-	int indi = (int) ind;
-	cout << indi << endl;
-	if(ind == x) {
-		return values[indi];
-	}
-
-	float low = values[indi];
-	float high = values[indi + 1];
-	float shift = x - ind;
-	return (high - low) * shift + low;
-}
-
 AdkTerm AdkTerm;
 
 void servoChanger(){
+	cout << "Value" << value << endl;
+	cout << "ain" << ain.read() << endl;
 	float margin = value / 20.0;
 	if(ain.read() >= value - margin && ain.read() <= value + margin) {
 		AdkTerm.right = 0;
 		AdkTerm.left = 0;
 		myled1 = 1;
-		value = -1.0;
 	} else {
 		myled1 = 0;
 	 	if(ain.read() > value) {
@@ -91,9 +93,13 @@ void servoChanger(){
 }
 
 int main() {
+	cout << "Program start" << endl;
 	AdkTerm.setupDevice();
+	cout << "Adk setup done" << endl;
 	USBInit();
+	cout << "USB init done" << endl;
 	value = interpolate(5.0);
+	cout << "Value set " << value << endl;
 	flipper.attach(&servoChanger, 0.1);
 	while(1) {
 		USBLoop();

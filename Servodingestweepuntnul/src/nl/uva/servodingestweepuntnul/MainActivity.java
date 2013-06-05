@@ -83,6 +83,9 @@ public class MainActivity extends Activity implements OnTouchListener,
 		// Update the value of the TextView to the new value of the seekBar
 		TextView value = (TextView) findViewById(R.id.value);
 		value.setText("" + arg1 / 10.0);
+		byte[] buf = new byte[1];
+		buf[0] = (byte) arg0.getProgress();
+		mbedPort.sendBytes(buf);
 	}
 	
 	@Override
@@ -90,10 +93,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	}
 	
 	@Override
-	public void onStopTrackingTouch(SeekBar bar) {
-		byte[] buf = new byte[1];
-		buf[0] = (byte) bar.getProgress();
-		mbedPort.sendBytes(buf);
+	public void onStopTrackingTouch(SeekBar arg0) {
 	}
 	
 }
