@@ -17,17 +17,19 @@ public class MbedServoClient implements IMbedNetwork {
 	public MbedServoClient(MainActivity main) {
 		this.main = main;
 		isRunning = true;
+		new Thread(this).start();
 	}
 	
 	@Override
 	public void run() {
+		Log.i("SD2", "RUN SERVER");
 		try {
 			sock = new Socket("192.168.1.217", 23568);
 		} catch(Exception e) {
 			Log.e("SD2", "Could not connect", e);
 		}
 		
-		Log.i("SD2-NET", "I connected to " + sock.getInetAddress());
+		Log.i("SD2", "I connected to " + sock.getInetAddress());
 		
 		int nread;
 		byte[] buf = new byte[1];
@@ -47,7 +49,7 @@ public class MbedServoClient implements IMbedNetwork {
 					main.newValue(buf[0] & 0xFF);
 				}
 			} catch(IOException e) {
-				Log.e("ServoServer", "Could not read from conn", e);
+				Log.e("SD2", "Could not read from conn", e);
 				return;
 			}
 		}
@@ -55,11 +57,13 @@ public class MbedServoClient implements IMbedNetwork {
 	
 	@Override
 	public void newValue(int value) {
-		try {
-			out.write(value);
-			out.flush();
-		} catch(IOException e) {
-			e.printStackTrace();
+		if(out != null){
+			try {
+				out.write(value);
+				out.flush();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

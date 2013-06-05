@@ -33,6 +33,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.i("SD2","ik begin");
 		isLocal = true;
 		
 		setContentView(R.layout.activity_main);
@@ -48,24 +49,26 @@ public class MainActivity extends Activity implements OnTouchListener,
 		radioButton2 = (RadioButton) findViewById(R.id.radio1);
 		radioButton1.setOnCheckedChangeListener(this);
 		radioButton2.setOnCheckedChangeListener(this);
-		
+		Log.i("SD2", "mbed trycatch ");
 		try {
 			mbedPort = new AdkPort(getBaseContext());
-		} catch(IOException e) {
+		} catch(Exception e) {
 			radioButton1.setChecked(false);
 			radioButton2.setChecked(true);
 			isLocal = false;
 			Log.i("SD2", "No mbed? ", e);
 		}
+		Log.i("SD2", "After try catch");
 		
-		radioButton1.setEnabled(false);
-		radioButton2.setEnabled(false);
-		
-		if(!isLocal) {
+		if(isLocal) {
 			netComponent = new MbedServoServer(this);
+			radioButton2.setEnabled(false);
 		} else {
 			netComponent = new MbedServoClient(this);
+			radioButton1.setEnabled(false);
+
 		}
+		Log.i("SD2", "After if else");
 	}
 	
 	protected void onDestroy() {
@@ -114,10 +117,13 @@ public class MainActivity extends Activity implements OnTouchListener,
 		// Update the value of the TextView to the new value of the seekBar
 		TextView value = (TextView) findViewById(R.id.value);
 		value.setText("" + arg1 / 10.0);
+		Log.i("SD2", "before islocal");
 		if(isLocal) {
 			sendMbedChangeValue(arg1);
 		}
+		Log.i("SD2", "After islocal" + netComponent);
 		netComponent.newValue(arg1);
+		Log.i("SD2", "After newvalue");
 	}
 	
 	public void newValue(int value) {

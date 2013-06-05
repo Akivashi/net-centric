@@ -18,16 +18,19 @@ public class MbedServoServer implements IMbedNetwork {
 	public MbedServoServer(MainActivity main) {
 		isRunning = true;
 		this.main = main;
+		new Thread(this).start();
 	}
 	
 	@Override
 	public void run() {
+		Log.i("SD2", "Starting server...");
 		try {
 			serverSock = new ServerSocket(23568, 0);
 		} catch(IOException e) {
-			Log.e("ServoServer", "Could not open server socket", e);
+			Log.e("SD2", "Could not open server socket", e);
 			return;
 		}
+		Log.i("SD2", "Server listening");
 		Socket sock;
 		int nread;
 		byte[] buf = new byte[1];
@@ -64,11 +67,13 @@ public class MbedServoServer implements IMbedNetwork {
 	
 	@Override
 	public void newValue(int value) {
-		try {
-			out.write(value);
-			out.flush();
-		} catch(IOException e) {
-			e.printStackTrace();
+		if(out != null){
+			try {
+				out.write(value);
+				out.flush();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
