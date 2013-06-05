@@ -1,4 +1,4 @@
-package nl.uva.servodingestweepuntnul;
+package nl.uva.sd2;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,9 +28,10 @@ public class MbedServoServer implements IMbedNetwork {
 			serverSock = new ServerSocket(23568, 0);
 		} catch(IOException e) {
 			Log.e("SD2", "Could not open server socket", e);
+			main.onError("Network error", "Could not open the server.");
 			return;
 		}
-		Log.i("SD2", "Server listening");
+		Log.i("SD2", "Server listening on port " + serverSock.getLocalPort());
 		Socket sock;
 		int nread;
 		byte[] buf = new byte[1];
@@ -40,11 +41,11 @@ public class MbedServoServer implements IMbedNetwork {
 				in = sock.getInputStream();
 				out = sock.getOutputStream();
 			} catch(IOException e) {
-				Log.e("ServoServer", "Could not open accept conn", e);
+				Log.e("SD2", "Could not open accept conn", e);
 				continue;
 			}
 			
-			Log.i("SD2-NET", "Client connected");
+			Log.i("SD2", "Client connected");
 			
 			try {
 				nread = in.read(buf);
@@ -60,14 +61,14 @@ public class MbedServoServer implements IMbedNetwork {
 					main.newValue(buf[0] & 0xFF);
 				}
 			} catch(IOException e) {
-				Log.e("ServoServer", "Could not read from conn", e);
+				Log.e("SD2", "Could not read from conn", e);
 			}
 		}
 	}
 	
 	@Override
 	public void newValue(int value) {
-		if(out != null){
+		if(out != null) {
 			try {
 				out.write(value);
 				out.flush();
@@ -94,5 +95,5 @@ public class MbedServoServer implements IMbedNetwork {
 			} catch(IOException idontcare) {
 			}
 		}
-	}	
+	}
 }

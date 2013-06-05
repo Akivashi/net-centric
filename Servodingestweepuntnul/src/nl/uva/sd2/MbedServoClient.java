@@ -1,4 +1,4 @@
-package nl.uva.servodingestweepuntnul;
+package nl.uva.sd2;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,11 +22,13 @@ public class MbedServoClient implements IMbedNetwork {
 	
 	@Override
 	public void run() {
-		Log.i("SD2", "RUN SERVER");
+		Log.i("SD2", "RUN CLIENT");
 		try {
 			sock = new Socket("192.168.1.217", 23568);
 		} catch(Exception e) {
 			Log.e("SD2", "Could not connect", e);
+			main.onError("Network error", "Could not connect to the server.");
+			return;
 		}
 		
 		Log.i("SD2", "I connected to " + sock.getInetAddress());

@@ -1,10 +1,15 @@
-package nl.uva.servodingestweepuntnul;
+package nl.uva.sd2;
 
 import java.io.IOException;
 
+import nl.uva.servodingestweepuntnul.R;
+
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Process;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -19,7 +24,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnTouchListener,
-		OnSeekBarChangeListener, OnCheckedChangeListener {
+		OnSeekBarChangeListener, OnCheckedChangeListener, AdkPort.MessageNotifier {
 	private AdkPort mbedPort;
 	private RadioButton radioButton1;
 	private RadioButton radioButton2;
@@ -33,7 +38,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.i("SD2","ik begin");
+		Log.i("SD2", "ik begin");
 		isLocal = true;
 		
 		setContentView(R.layout.activity_main);
@@ -51,8 +56,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 		radioButton2.setOnCheckedChangeListener(this);
 		Log.i("SD2", "mbed trycatch ");
 		try {
-			mbedPort = new AdkPort(getBaseContext());
-		} catch(Exception e) {
+			mbedPort = new AdkPort(this, this);
+		} catch(IOException e) {
 			radioButton1.setChecked(false);
 			radioButton2.setChecked(true);
 			isLocal = false;
@@ -66,15 +71,43 @@ public class MainActivity extends Activity implements OnTouchListener,
 		} else {
 			netComponent = new MbedServoClient(this);
 			radioButton1.setEnabled(false);
-
+			
 		}
 		Log.i("SD2", "After if else");
+	}
+	
+	public void onError(String title, String error) {
+		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+		
+		// set title
+		alertBuilder.setTitle(title);
+		
+		// set dialog message
+		alertBuilder.setMessage(error);
+		alertBuilder.setCancelable(false);
+		alertBuilder.setNegativeButton("Exit",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if(which == AlertDialog.BUTTON_NEGATIVE) {
+							Process.killProcess(Process.myPid());
+						}
+					}
+				});
+		
+		// create alert dialog & show it
+		alertBuilder.create().show();
 	}
 	
 	protected void onDestroy() {
 		// Kill server or client on app stop
 		if(netComponent != null) {
 			netComponent.stop();
+		}
+		
+		// Close the mbed port if open
+		if(mbedPort != null) {
+			mbedPort.onDestroy(this);
 		}
 	}
 	
@@ -156,5 +189,15 @@ public class MainActivity extends Activity implements OnTouchListener,
 		} else if(radioButton2.getId() == arg0.getId()) {
 			radioButton1.setChecked(!arg1);
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see nl.uva.servodingestweepuntnul.AdkPort.MessageNotifier#onNew()
+	 */
+	@Override
+	public void onNew() {
+		// Called when data is send from the mbed and ready to be read
+		
+		// TODO: Implement this
 	}
 }

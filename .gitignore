@@ -1,2 +1,5 @@
 gcc_arm
 helloworld
+*.class
+*.apk
+*.*~

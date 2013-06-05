@@ -1,4 +1,4 @@
-package nl.uva.servodingestweepuntnul;
+package nl.uva.sd2;
 
 /*
  * AdkPort RingBuffer library
