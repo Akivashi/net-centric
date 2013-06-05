@@ -32,26 +32,54 @@
         android:background="@color/white"
         android:text="Right" />
 
+    <RadioGroup
+        android:id="@+id/radioGroup1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/value"
+        android:layout_below="@+id/seekBar1" >
+    </RadioGroup>
+
     <SeekBar
         android:id="@+id/seekBar1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/left"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="145dp"
+        android:layout_marginBottom="80dp"
         android:progress="@integer/progress" />
 
     <TextView
         android:id="@+id/value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/left"
-        android:layout_marginTop="59dp"
-        android:layout_toLeftOf="@+id/right"
-        android:layout_toRightOf="@+id/left"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:gravity="center_horizontal"
         android:text="5.0"
-        android:textSize="26sp"
+        android:textColor="@color/white"
+        android:textSize="26sp" />
+
+    <RadioButton
+        android:id="@+id/radio0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/left"
+        android:layout_marginTop="24dp"
+        android:checked="true"
+        android:minHeight="22dp"
+        android:text="Local"
+        android:textColor="@color/white" />
+
+    <RadioButton
+        android:id="@+id/radio1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/radio0"
+        android:layout_alignBottom="@+id/radio0"
+        android:layout_alignRight="@+id/seekBar1"
+        android:text="Remote"
         android:textColor="@color/white" />
 
 </RelativeLayout>
