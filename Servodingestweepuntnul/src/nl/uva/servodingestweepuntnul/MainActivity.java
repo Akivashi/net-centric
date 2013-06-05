@@ -25,8 +25,10 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private RadioButton radioButton2;
 	private Button left;
 	private Button right;
+	private SeekBar seekBar;
 	
 	private boolean isLocal;
+	private IMbedNetwork netComponent;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +41,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 		left.setOnTouchListener(this);
 		right.setOnTouchListener(this);
 		
-		SeekBar seekbar1 = (SeekBar) findViewById(R.id.seekBar1);
-		seekbar1.setOnSeekBarChangeListener(this);
+		seekBar = (SeekBar) findViewById(R.id.seekBar1);
+		seekBar.setOnSeekBarChangeListener(this);
 		
 		radioButton1 = (RadioButton) findViewById(R.id.radio0);
 		radioButton2 = (RadioButton) findViewById(R.id.radio1);
@@ -54,6 +56,22 @@ public class MainActivity extends Activity implements OnTouchListener,
 			radioButton2.setChecked(true);
 			isLocal = false;
 			Log.i("SD2", "No mbed? ", e);
+		}
+		
+		radioButton1.setEnabled(false);
+		radioButton2.setEnabled(false);
+		
+		if(!isLocal) {
+			netComponent = new MbedServoServer(this);
+		} else {
+			netComponent = new MbedServoClient(this);
+		}
+	}
+	
+	protected void onDestroy() {
+		// Kill server or client on app stop
+		if(netComponent != null) {
+			netComponent.stop();
 		}
 	}
 	
@@ -70,8 +88,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 			((Button) v).setBackgroundColor(Color.GRAY);
 		else {
 			((Button) v).setBackgroundColor(Color.WHITE);
-			SeekBar progressBar = (SeekBar) findViewById(R.id.seekBar1);
-			int progress = progressBar.getProgress();
+			int progress = seekBar.getProgress();
 			
 			if(left.getId() == v.getId()) {
 				// left button pressed
@@ -83,7 +100,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 					progress++;
 			}
 			// Set the progress of the seekBar
-			progressBar.setProgress(progress);
+			seekBar.setProgress(progress);
 			
 			// Set the TextView to the new value
 			TextView value = (TextView) findViewById(R.id.value);
@@ -97,9 +114,24 @@ public class MainActivity extends Activity implements OnTouchListener,
 		// Update the value of the TextView to the new value of the seekBar
 		TextView value = (TextView) findViewById(R.id.value);
 		value.setText("" + arg1 / 10.0);
+		if(isLocal) {
+			sendMbedChangeValue(arg1);
+		}
+		netComponent.newValue(arg1);
+	}
+	
+	public void newValue(int value) {
+		TextView valueText = (TextView) findViewById(R.id.value);
+		valueText.setText("" + value / 10.0);
+		seekBar.setProgress(value);
+		if(isLocal) {
+			sendMbedChangeValue(value);
+		}
+	}
+	
+	public void sendMbedChangeValue(int value) {
 		byte[] buf = new byte[1];
-		buf[0] = (byte) arg0.getProgress();
-		Log.i("Send","Sending value: " + arg1);
+		buf[0] = (byte) value;
 		mbedPort.sendBytes(buf);
 	}
 	
@@ -115,10 +147,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 	public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
 		if(radioButton1.getId() == arg0.getId()) {
 			radioButton2.setChecked(!arg1);
-			isLocal = arg1;
 		} else if(radioButton2.getId() == arg0.getId()) {
 			radioButton1.setChecked(!arg1);
-			isLocal = !arg1;
 		}
 	}
 }
