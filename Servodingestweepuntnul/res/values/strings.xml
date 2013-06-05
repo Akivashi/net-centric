@@ -4,6 +4,13 @@
     <string name="app_name">Servodingestweepuntnul</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="left">Left</string>
+    <string name="right">Right</string>
+    <string name="sys">System:</string>
+    <string name="val">5.0</string>
+    <string name="set">Set to:</string>
+    <string name="remote">Remote</string>
+    <string name="local">Local</string>
     <color name="black">#000</color>
     <color name="white">#FFF</color>
     <color name="grey">#C0C0C0</color>

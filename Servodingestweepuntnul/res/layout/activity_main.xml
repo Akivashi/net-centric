@@ -18,7 +18,7 @@
         android:layout_marginLeft="22dp"
         android:layout_marginTop="64dp"
         android:background="@color/white"
-        android:text="Left" />
+        android:text="@string/left" />
 
     <Button
         android:id="@+id/right"
@@ -30,7 +30,7 @@
         android:layout_marginRight="22dp"
         android:layout_marginTop="64dp"
         android:background="@color/white"
-        android:text="Right" />
+        android:text="@string/right" />
 
     <RadioGroup
         android:id="@+id/radioGroup1"
@@ -47,7 +47,7 @@
         android:layout_alignLeft="@+id/textView1"
         android:layout_below="@+id/textView1"
         android:layout_marginTop="32dp"
-        android:text="System:"
+        android:text="@string/sys"
         android:textColor="@color/white"
         android:textColorHint="@color/white"
         android:textSize="22sp" />
@@ -59,7 +59,7 @@
         android:layout_alignLeft="@+id/right"
         android:layout_alignTop="@+id/textView1"
         android:gravity="center_horizontal"
-        android:text="5.0"
+        android:text="@string/val"
         android:textColor="@color/white"
         android:textSize="26sp" />
 
@@ -70,7 +70,7 @@
         android:layout_alignBottom="@+id/textView2"
         android:layout_alignLeft="@+id/value"
         android:gravity="center_horizontal"
-        android:text="5.0"
+        android:text="@string/val"
         android:textColor="@color/white"
         android:textSize="26sp" />
 
@@ -80,7 +80,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/left"
         android:layout_centerVertical="true"
-        android:text="Set to:"
+        android:text="@string/set"
         android:textColor="@color/white"
         android:textSize="22sp" />
 
@@ -100,7 +100,7 @@
         android:layout_alignBaseline="@+id/radio0"
         android:layout_alignBottom="@+id/radio0"
         android:layout_alignRight="@+id/right"
-        android:text="Remote"
+        android:text="@string/remote"
         android:textColor="@color/white"
         android:textSize="22sp" />
 
@@ -113,7 +113,7 @@
         android:layout_marginTop="42dp"
         android:checked="true"
         android:minHeight="22dp"
-        android:text="Local"
+        android:text="@string/local"
         android:textColor="@color/white"
         android:textSize="22sp" />
 
