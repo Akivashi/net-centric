@@ -1,8 +1,11 @@
 package nl.uva.servodingestweepuntnul;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,6 +18,8 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnTouchListener,
 		OnSeekBarChangeListener, OnClickListener {
+	private AdkPort mbedPort;
+	
 	
 	// init all buttons background : GRAY
 	public void initButtons() {
@@ -36,6 +41,11 @@ public class MainActivity extends Activity implements OnTouchListener,
 		button1.setOnClickListener(this);
 		button2.setOnClickListener(this);
 		seekbar1.setOnSeekBarChangeListener(this);
+		try {
+			mbedPort = new AdkPort(getBaseContext());
+		} catch(IOException e) {
+			Log.e("Ding", "Error: ", e);
+		}
 	}
 	
 	@Override
@@ -63,14 +73,13 @@ public class MainActivity extends Activity implements OnTouchListener,
 	
 	@Override
 	public void onStartTrackingTouch(SeekBar arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override
-	public void onStopTrackingTouch(SeekBar arg0) {
-		// TODO Auto-generated method stub
-		
+	public void onStopTrackingTouch(SeekBar bar) {
+		byte[] buf = new byte[1];
+		buf[0] = (byte) bar.getProgress();
+		mbedPort.sendBytes(buf);
 	}
 	
 	@Override
