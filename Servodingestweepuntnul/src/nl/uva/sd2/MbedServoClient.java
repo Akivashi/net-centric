@@ -25,6 +25,8 @@ public class MbedServoClient implements IMbedNetwork {
 		Log.i("SD2", "RUN CLIENT");
 		try {
 			sock = new Socket("192.168.1.217", 23568);
+			in = sock.getInputStream();
+			out = sock.getOutputStream();
 		} catch(Exception e) {
 			Log.e("SD2", "Could not connect", e);
 			main.onError("Network error", "Could not connect to the server.");
