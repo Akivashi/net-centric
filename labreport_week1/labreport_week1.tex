@@ -4,6 +4,29 @@
 \usepackage[usenames, dvipsnames]{xcolor}
 \usepackage{graphicx,hyperref,amsmath,float, hhline}
 \usepackage[top=3cm,bottom=3cm,left=3cm,right=3cm]{geometry}
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
 \hypersetup{
 	colorlinks,
 	citecolor=black,
@@ -41,15 +64,17 @@
 		In dit onderzoek moet een verbinding gelegd worden tussen een applicatie op een Android apparaat met een mbed microcontroller. De mbed is op zijn beurt weer aangesloten op een servo systeem waar spanning op staat. De applicatie moet signalen naar de mbed versturen om deze servo aan te kunnen sturen. Vervolgens moet het ook mogelijk gaan worden om het servo systeem met andere nodes te laten communiceren en niet alleen met de op de mbed aangesloten Android. Zulke systemen zouden het in theorie mogelijk maken overal ter wereld een systeem aan te sturen. Dit maakt dus handelingen van afstand mogelijk, wat tijd en werk kan besparen.
 
 	\section{De aansluiting}
-		Het servosysteem bestaat uit een elektromotor. Op de as van de elektromotor is een potentiometer gemonteerd die de positie van de as meet. Dit servo systeem wordt met vijf draden op de mbed aangesloten. Twee van de draden regelen de stroomtoevoer. Een derde draad wordt gebruikt om de waarde van de potentiometer aan de mbed mee door te geven. Deze draad zal een geregeld voltage krijgen, afhankelijk van de stand van de as van de elektromotor. In de mbed ligt deze waarde tussen nul en \'e\'en. Vervolgens zijn er nog twee draden die de elektromotor besturen. Een stroom op de ene draad zorgt voor een rotatie naar links, een stroom op de andere draad naar rechts. Zonder stroom op deze draden draait de elektromotor niet. De mbed is aangesloten doormiddel van een usb kabel met het Android apparaat. De mbed kan aangesloten worden op een computer om zo een nieuw programma in te laden. De computer kan hierna weer losgekoppeld worden.
+		Het servosysteem bestaat uit een elektromotor. Op de as van de elektromotor is een potentiometer gemonteerd die de positie van de as meet. Dit servo systeem wordt met vijf draden op de mbed aangesloten. Twee van de draden regelen de stroomtoevoer. Een derde draad wordt gebruikt om de waarde van de potentiometer aan de mbed mee door te geven. Deze draad zal een geregeld voltage krijgen, afhankelijk van de stand van de as van de elektromotor. In de mbed ligt deze waarde tussen 0 en 1. Vervolgens zijn er nog twee draden die de elektromotor besturen. Een stroom op de ene draad zorgt voor een rotatie naar links, een stroom op de andere draad naar rechts. Zonder stroom op deze draden draait de elektromotor niet. De mbed is aangesloten doormiddel van een usb kabel met het Android apparaat. De mbed kan aangesloten worden op een computer om zo een nieuw programma in te laden. De computer kan hierna weer losgekoppeld worden.
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.8\textwidth]{imgs/opstelling.png}
 		\caption{Opstelling}
 		\label{fig:opstelling}
 	\end{figure}
+		\newpage
 	\section{Onderzoek}
-		Het is noodzakelijk eerst te onderzoeken hoe het servo systeem werkt. De analoog zichtbare waardes op het servo systeem lopen van nul tot tien. De potentiometer geeft echter een waarde tussen nul en \'e\'en af aan de mbed. om het verband tussen de analoge waarde en de mbed te bepalen moeten er metingen worden gedaan. De knop op het servo systeem kan op een bepaalde stand worden geplaatst. Vervolgens kan de waarde van de potentiometer getoond worden. Er worden elf metingen gedaan vanaf de waarde nul tot en met tien. De waarden zijn terug te vinden in tabel \ref{tab:gemeten}, de bijbehorende grafiek staat in figuur \ref{fig:logaritmisch}. Uit de gemeten waarden valt af te lezen dat het servo systeem exponentieel in waarde stijgt in plaats van lineair. Aan de hand van een vergelijking zou de waarde geschat kunnen gaan worden die de servo moet gaan aannemen bij de bijbehorende analoge stand. Het blijkt echter beter te werken om lineair te interpoleren tussen bekende waardes.
+		\subsection{Servo systeem}
+		Het is noodzakelijk eerst te onderzoeken hoe het servo systeem werkt. De analoog zichtbare waardes op het servo systeem lopen van 0 tot 10. De potentiometer geeft echter een waarde tussen 0 en 1 af aan de mbed. om het verband tussen de analoge waarde en de mbed te bepalen moeten er metingen worden gedaan. De knop op het servo systeem kan op een bepaalde stand worden geplaatst. Vervolgens kan de waarde van de potentiometer getoond worden. Er worden elf metingen gedaan vanaf de waarde 0 tot en met 10. De waarden zijn terug te vinden in tabel \ref{tab:gemeten}, de bijbehorende grafiek staat in figuur \ref{fig:logaritmisch}. Uit de gemeten waarden valt af te lezen dat het servo systeem exponentieel in waarde stijgt in plaats van lineair. Aan de hand van een vergelijking zou de waarde geschat kunnen gaan worden die de servo moet gaan aannemen bij de bijbehorende analoge stand. Het blijkt echter beter te werken om lineair te interpoleren tussen bekende waardes. De code hiervoor is te zien als snippet in listing \ref{lst:interpolate}\\
 	\begin{table}[h]
 		\begin{centering}
 			\begin{tabular}{| c | c |}
@@ -77,15 +102,86 @@
 		\caption{Exponentiele vergelijking}
 		\label{fig:logaritmisch}
 	\end{figure}
+	\newpage
+	\begin{lstlisting}[caption=Linear Interpolation, label=lst:interpolate, numbers=left]
+	float interpolate(float x) {
+		const float values[] = { 0.002, 0.0062, 0.018, 0.059, 0.105, 0.152,
+					    0.2, 0.302, 0.504, 0.745, 0.996};
+		if(x < 0 || x > 10.0) {
+			return -1.0;
+		}
+		float ind = floor(x);
+		int indi = (int) ind;
+		if(ind == x) {
+			return values[indi];
+		}
+		float low = values[indi];
+		float high = values[indi + 1];
+		float shift = x - ind;
+		return (high - low) * shift + low;
+	}
+	\end{lstlisting}
+		\subsection{Android}
+		Nu bekend is hoe de analoge waarden omgezet worden naar digitale waarden kan een Android applicatie bedacht worden waarmee deze waarde aangepast kan gaan worden. Om te beginnen is hier een layout voor nodig met enkele eenvoudige mogelijkheden. De twee voor de hand liggende manieren om de servo mee te bedienen is een slider en twee knoppen om mee naar links of naar rechts te bewegen. De slider kan gebruikt worden om snel naar elke waarde te veranderen. De twee knoppen verhogen of verlagen de analoge waarde steeds met 0.1. De slider moet ook meeveranderen als deze knoppen gebruikt worden. De waarde die het servo systeem vervolgens moet aannemen moet ook zichtbaar gemaakt worden aan de gebruiker. Op figuur \ref{fig:layout1} is te zien hoe deze layout er uit ziet.
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.6]{imgs/layout1.png}
+		\caption{Basis Layout}
+		\label{fig:layout1}
+	\end{figure}
+		\subsection{Communicatie naar de mbed}
+			De door de gebruiker gesette waarde is een integer tussen 0 en 100. Deze waarde wordt omgezet in een byte en kan dvervolgens naar de mbed gestuurd worden. In de mbed wordt vervolgens de waarde door 10 gedeeld om de gewenste analoge stand te verkrijgen. Met deze gewenste analoge waarde moet vervolgens de juist waarde voor de potentiometer gevonden worden tussen 0 en 1. Er zijn echter maar elf digitale waarden bekend die bij anaolge waarden horen. Door middel van lineaire interpolatie kan de juiste waarde voor de potentiometer gevonden worden zoals te zien in code snippet \ref{lst:interpolate}. Deze gevonden waarde wordt vervolgens gezocht door de mbed code. 
+De potentiometer is echter niet accuraat genoeg om deze waarde altijd exact te vinden. Dit resulteert in het continu blijven veranderen van de stand van de as van het servo systeem. Om dit tegen te gaan wordt gebruik gemaakt van een margin rondom deze waarde. Een margin van 5\% boven en onder de waarde is voldoende om analoog niet het verschil te kunnen zien. Echter is een verschil van 5\% minder accuraat als de analoge waarde kleiner is. Dit komt door de exponentiele manier waarop het servo systeem zich gedraagt.
+
+		\subsection{Communicatie naar de Android}
+			De gebruiker wil echter ook weten wat momenteel de analoge stand is. Hiervoor moet de layout uitgebreid worden met een extra tekstveld. De nieuwe layout is te zien in figuur \ref{fig:layout2}. De potentiometer geeft een waarde tussen 0 en 1. Om hieruit de analoge waarde terug te krijgen moet inverse lineaire interpolatie worden toegepast, zoals te zien in listing \ref{lst:revinterpolate}. Op deze manier wordt een waarde gevonden tussen 0 en 10. Om de gebruiker in \'e\'en decimaal nauwkeurig te vertellen wat de huidige analoge waarde is wordt de gevonden waarde tussen 0 en 10 met 10 vermenigvuldigd. Deze waarde wordt dan omgezet naar een byte, waarna deze terug gestuurd kan worden naar de Android. Op de android wordt de waarde omgezet naar een float en weer door 10 gedeeld. Om het systeem niet te overbelasten wordt niet continu teruggestuurd wat de huidige anaolge waarde is maar wordt een interval van 0.5 seconde gebruikt.
+	\begin{lstlisting}[caption=Linear Interpolation, label=lst:revinterpolate, numbers=left]
+	float rev_interpolate(float x) {
+		const float values[] = { 0.002, 0.0062, 0.018, 0.059, 0.105, 0.152,
+					    0.2, 0.302, 0.504, 0.745, 0.996};
+		int ind = 0;
+		for(int i = 0; i < 10; i++){
+			if(x >= values[i] && x <= values[i+1]){
+				ind = i;
+			}
+		}
+		if(x > values[10])
+			return 10;
+		if(x == values[ind])
+			return ind;
+		if(x == values[ind+1])
+			return ind+1;
+		float difference = fabs(values[ind+1] - values[ind]);
+		return ind + (x-values[ind])/difference;
+	}
+	\end{lstlisting}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.6]{imgs/layout2.png}
+		\caption{Layout met huidige analoge waarde}
+		\label{fig:layout2}
+	\end{figure}
+
+		\subsection{Besturing vanaf tweede toestel}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.6]{imgs/layout3.png}
+		\caption{Volledige Layout}
+		\label{fig:layout3}
+	\end{figure}
+	\newpage
 	\section{Logboek}
 		\subsection{Maandag 3 Juni}
-			Begonnen met het vertrouwt raken met de mbed. Enkele oefenprogramma's gemaakt die aangestuurd konden worden door middel van knopjes op de mbed zelf. Nog geen mogelijkheid gehad om waardes van de mbed naar de computer te krijgen. De lab machines die gebruikt konden worden hadden hiervoor geen permissies en er was geen eigen laptop meegenomen. Als tijdige oplossing output gecreerd door signalen met de LED lampjes.
+			Begonnen met het vertrouwt raken met de mbed. Enkele oefenprogramma's gemaakt die aangestuurd konden worden door middel van knopjes op de mbed zelf. Een aparte verandering in voltage naar analoge waarde waar genomen. Echter nog geen mogelijkheid gehad om waardes van de mbed naar de computer te krijgen. De lab machines die gebruikt konden worden hadden hiervoor geen permissies en er was geen eigen laptop meegenomen. Als tijdige oplossing output gecreerd door signalen met de LED lampjes.
 		\subsection{Dinsdag 4 Juni}
 			Programma's aan de praat gekregen die communiceren met een laptop. Juiste voltage en analoge waarde grafiek opgesteld. Android omgeving geinstalleerd. De voorbeeldcode voor een Android applicatie gecombineerd met mbed code onderzocht. Vervolgens begonnen met de layout van de Android applicatie en de mogelijkheden die er in de Android applicatie moeten komen.
 		\subsection{Woensdag 5 Juni}
-			Applicatie voor de Android werkend gekregen. De applicatie kan nu waardes aan de mbed doorgeven. De mbed zoekt vervolgens met deze waarde de juiste positie voor de as van de elektromotor. Begonnen met een server client systeem. De android die aangesloten staat op de mbed functioneert als server. Andere android toestellen met dezelfde applicatie zouden contact moeten kunnen leggen met deze android om de waardes van servo aan te kunen passen. Dit werkt echter nog niet.
+			Applicatie voor de Android werkend gekregen. De applicatie kan nu waardes aan de mbed doorgeven. De mbed zoekt vervolgens met deze waarde de juiste positie voor de as van de elektromotor. Begonnen met een server client systeem voor wifi. De android die aangesloten staat op de mbed functioneert als server. Andere android toestellen met dezelfde applicatie zouden contact moeten kunnen leggen met deze android om de waardes van servo aan te kunen passen. Dit werkt echter nog niet.
 		\subsection{Donderdag 6 Juni}
 			Bijwerken en opschonen van het LabReport. Debugging lines toegevoegd aan de client server code voor de applicatie.
 		\subsection{Vrijdag 7 Juni}
+			Het client server systeem werkend gekregen voor wifi. Vervolgens deze code verwijderd, wifi mocht niet gebruikt worden. Er toen voor gezorgd dat de mbed de huidige analoge waarde terug kan communiceren met het Android apparaat. Tot slot het client server model teruggehaald en omgeschreven voor communicatie voor bluetooth. Wegens tijdgebrek geen protocol gemaakt, waardoor het alleen mogelijk is de gesette waarde over en weer te sturen.
+		\subsection{Zaterdag 8 Juni}
+			Commentaar bij de code toegevoegd en het LabReport afgemaakt.
 	
 \end{document}
