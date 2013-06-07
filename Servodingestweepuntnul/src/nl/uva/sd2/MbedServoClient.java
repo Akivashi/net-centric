@@ -3,37 +3,66 @@ package nl.uva.sd2;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Socket;
 
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 
-public class MbedServoClient implements IMbedNetwork {
+public class MbedServoClient extends MbedNetwork {
 	private InputStream in;
 	private OutputStream out;
-	private MainActivity main;
-	private Socket sock;
+	private BluetoothSocket sock;
 	private boolean isRunning;
+	private BroadcastReceiver mReceiver;
 	
 	public MbedServoClient(MainActivity main) {
-		this.main = main;
+		super(main);
 		isRunning = true;
+	}
+	
+	@Override
+	public void onStart() {
+		// Create a BroadcastReceiver for ACTION_FOUND
+		mReceiver = new BroadcastReceiver() {
+		    public void onReceive(Context context, Intent intent) {
+		        String action = intent.getAction();
+		        // When discovery finds a device
+		        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+		            // Get the BluetoothDevice object from the Intent
+		            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+		            if(device.getName().indexOf("17") > 0) {
+		            	Log.i("SD2", "Found server? " + device.getName());
+		            	onServerFound(device);
+		            }
+		        }
+		    }
+		};
+		// Register the BroadcastReceiver
+		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+		main.registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy*/
+		
 		new Thread(this).start();
+	}
+	
+	public void onServerFound(BluetoothDevice dev) {
+		try {
+			sock = dev.createRfcommSocketToServiceRecord(MbedNetwork.SD2_UUID);
+			in = sock.getInputStream();
+			out = sock.getOutputStream();
+		} catch(IOException e) {
+			Log.e("SD2", "Could not connect", e);
+			main.onError("Network error", "Could not connect to the server.");
+		}
+		Log.i("SD2", "I connected to " + dev.getAddress() + "/" + dev.getName());
 	}
 	
 	@Override
 	public void run() {
 		Log.i("SD2", "RUN CLIENT");
-		try {
-			sock = new Socket("192.168.1.217", 23568);
-			in = sock.getInputStream();
-			out = sock.getOutputStream();
-		} catch(Exception e) {
-			Log.e("SD2", "Could not connect", e);
-			main.onError("Network error", "Could not connect to the server.");
-			return;
-		}
-		
-		Log.i("SD2", "I connected to " + sock.getInetAddress());
 		
 		int nread;
 		byte[] buf = new byte[1];
@@ -82,5 +111,8 @@ public class MbedServoClient implements IMbedNetwork {
 			} catch(IOException idontcare) {
 			}
 		}
-	}	
+		if(mReceiver != null) {
+			main.unregisterReceiver(mReceiver);
+		}
+	}
 }

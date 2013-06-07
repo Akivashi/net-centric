@@ -3,10 +3,10 @@ package nl.uva.sd2;
 import java.io.IOException;
 
 import nl.uva.servodingestweepuntnul.R;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Process;
@@ -24,7 +24,8 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnTouchListener,
-		OnSeekBarChangeListener, OnCheckedChangeListener, AdkPort.MessageNotifier {
+		OnSeekBarChangeListener, OnCheckedChangeListener,
+		AdkPort.MessageNotifier {
 	private AdkPort mbedPort;
 	private RadioButton radioButton1;
 	private RadioButton radioButton2;
@@ -33,7 +34,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private SeekBar seekBar;
 	
 	private boolean isLocal;
-	private IMbedNetwork netComponent;
+	private MbedNetwork netComponent;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -196,8 +197,28 @@ public class MainActivity extends Activity implements OnTouchListener,
 			radioButton1.setChecked(!arg1);
 		}
 	}
-
-	/* (non-Javadoc)
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if(requestCode == MbedNetwork.REQUEST_ENABLE_BT) {
+			if(resultCode == RESULT_OK) {
+				netComponent.onStart();
+			} else {
+				onError("Bluetooth error", "Bluetooth disabled");
+			}
+		} else if(requestCode == MbedServoServer.REQUEST_DISCOVERABLE_BT
+				&& netComponent instanceof MbedServoServer) {
+			if(resultCode != RESULT_CANCELED) {
+				onError("Bluetooth error", "Could not go into discovery mode");
+			} else {
+				((MbedServoServer) netComponent).onDiscoverable();
+			}
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see nl.uva.servodingestweepuntnul.AdkPort.MessageNotifier#onNew()
 	 */
 	@Override

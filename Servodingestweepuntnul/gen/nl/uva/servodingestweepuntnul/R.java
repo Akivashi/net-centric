@@ -29,13 +29,16 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f0a0007;
-        public static final int left=0x7f0a0000;
-        public static final int radio0=0x7f0a0005;
-        public static final int radio1=0x7f0a0006;
+        public static final int action_settings=0x7f0a000a;
+        public static final int left=0x7f0a0001;
+        public static final int radio0=0x7f0a0009;
+        public static final int radio1=0x7f0a0008;
         public static final int radioGroup1=0x7f0a0002;
-        public static final int right=0x7f0a0001;
+        public static final int right=0x7f0a0000;
         public static final int seekBar1=0x7f0a0004;
+        public static final int systemval=0x7f0a0007;
+        public static final int textView1=0x7f0a0006;
+        public static final int textView2=0x7f0a0005;
         public static final int value=0x7f0a0003;
     }
     public static final class integer {
@@ -51,6 +54,13 @@ public final class R {
         public static final int action_settings=0x7f060001;
         public static final int app_name=0x7f060000;
         public static final int hello_world=0x7f060002;
+        public static final int left=0x7f060003;
+        public static final int local=0x7f060009;
+        public static final int remote=0x7f060008;
+        public static final int right=0x7f060004;
+        public static final int set=0x7f060007;
+        public static final int sys=0x7f060005;
+        public static final int val=0x7f060006;
     }
     public static final class style {
         /** 
