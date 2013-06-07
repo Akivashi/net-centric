@@ -26,6 +26,7 @@ public class MbedServoClient extends MbedNetwork {
 	
 	@Override
 	public void onStart() {
+		Log.i("SD2","Started bluetooth search");
 		// Create a BroadcastReceiver for ACTION_FOUND
 		mReceiver = new BroadcastReceiver() {
 		    public void onReceive(Context context, Intent intent) {
@@ -34,6 +35,7 @@ public class MbedServoClient extends MbedNetwork {
 		        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 		            // Get the BluetoothDevice object from the Intent
 		            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+	            	Log.i("SD2", "Found server for if? " + device.getName());
 		            if(device.getName().indexOf("17") > 0) {
 		            	Log.i("SD2", "Found server? " + device.getName());
 		            	onServerFound(device);
@@ -44,13 +46,14 @@ public class MbedServoClient extends MbedNetwork {
 		// Register the BroadcastReceiver
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
 		main.registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy*/
-		
-		new Thread(this).start();
+		adapter.startDiscovery();
 	}
 	
 	public void onServerFound(BluetoothDevice dev) {
 		try {
 			sock = dev.createRfcommSocketToServiceRecord(MbedNetwork.SD2_UUID);
+			adapter.cancelDiscovery();
+			sock.connect();
 			in = sock.getInputStream();
 			out = sock.getOutputStream();
 		} catch(IOException e) {
@@ -58,6 +61,7 @@ public class MbedServoClient extends MbedNetwork {
 			main.onError("Network error", "Could not connect to the server.");
 		}
 		Log.i("SD2", "I connected to " + dev.getAddress() + "/" + dev.getName());
+		new Thread(this).start();
 	}
 	
 	@Override

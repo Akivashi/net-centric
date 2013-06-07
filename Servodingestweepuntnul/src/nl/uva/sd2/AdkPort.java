@@ -104,7 +104,7 @@ public class AdkPort implements Runnable {
 		this.mMessage = mMessage;
 		if(!setup(context)) {
 			Log.e(TAG, "No mbed found");
-			
+			context.unregisterReceiver(mUsbReceiver);
 			throw(new IOException("No mBed attached"));
 		}
 	}

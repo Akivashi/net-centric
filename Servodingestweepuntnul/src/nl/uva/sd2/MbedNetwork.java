@@ -30,6 +30,9 @@ public abstract class MbedNetwork implements Runnable {
 			main.startActivityForResult(enableBtIntent,
 					MbedNetwork.REQUEST_ENABLE_BT);
 		}
+		else{
+			onStart();
+		}
 	}
 	
 	public abstract void onStart();

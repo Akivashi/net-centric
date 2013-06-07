@@ -66,15 +66,17 @@ public class MainActivity extends Activity implements OnTouchListener,
 			Log.i("SD2", "No mbed? ", e);
 		}
 		Log.i("SD2", "After try catch");
-		/*
 		if(isLocal) {
 			netComponent = new MbedServoServer(this);
 			radioButton2.setEnabled(false);
 		} else {
 			netComponent = new MbedServoClient(this);
 			radioButton1.setEnabled(false);
-			
-		}*/
+			TextView systemval = (TextView) findViewById(R.id.systemval);
+			TextView sys = (TextView) findViewById(R.id.textView2);
+			systemval.setVisibility(View.INVISIBLE);
+			sys.setVisibility(View.INVISIBLE);
+		}
 		Log.i("SD2", "After if else");
 	}
 	
@@ -157,15 +159,15 @@ public class MainActivity extends Activity implements OnTouchListener,
 		if(isLocal) {
 			sendMbedChangeValue(arg1);
 		}
-		//Log.i("SD2", "After islocal" + netComponent);
-//		netComponent.newValue(arg1);
+		Log.i("SD2", "After islocal" + netComponent);
+		netComponent.newValue(arg1);
 		Log.i("SD2", "After newvalue");
 	}
 	
 	public void newValue(final int value) {
 		final TextView valueText = (TextView) findViewById(R.id.value);
 		valueText.post(new Runnable(){public void run(){valueText.setText("" + value / 10.0);}});
-		//valueText.setText("" + value / 10.0);
+
 		seekBar.setProgress(value);
 		if(isLocal) {
 			sendMbedChangeValue(value);
@@ -200,6 +202,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.i("SD2","requestcode: " + requestCode + " resultcode: " + resultCode);
 		if(requestCode == MbedNetwork.REQUEST_ENABLE_BT) {
 			if(resultCode == RESULT_OK) {
 				netComponent.onStart();
@@ -208,7 +211,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 			}
 		} else if(requestCode == MbedServoServer.REQUEST_DISCOVERABLE_BT
 				&& netComponent instanceof MbedServoServer) {
-			if(resultCode != RESULT_CANCELED) {
+			if(resultCode == RESULT_CANCELED) {
 				onError("Bluetooth error", "Could not go into discovery mode");
 			} else {
 				((MbedServoServer) netComponent).onDiscoverable();

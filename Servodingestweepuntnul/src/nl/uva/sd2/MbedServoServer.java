@@ -56,22 +56,26 @@ public class MbedServoServer extends MbedNetwork {
 			}
 			
 			Log.i("SD2", "Opened bluetooth server socket with adress " + adapter.getAddress());
-			
+
+			try {
+				Log.i("SD2","start try socket");
+				sock = serverSock.accept();
+				Log.i("SD2","accpeted socket");
+				in = sock.getInputStream();
+				Log.i("SD2","got inputstream");
+				out = sock.getOutputStream();
+				Log.i("SD2","got outputstream");
+			} catch(IOException e) {
+				Log.e("SD2", "Could not open accept conn", e);
+				continue;
+			}
+			Log.i("SD2", "Client connected");
 			while(isRunning) {
 				try {
-					sock = serverSock.accept();
-					in = sock.getInputStream();
-					out = sock.getOutputStream();
-				} catch(IOException e) {
-					Log.e("SD2", "Could not open accept conn", e);
-					continue;
-				}
-				
-				Log.i("SD2", "Client connected");
-				
-				try {
+					Log.i("SD2","trying to receive something");
 					nread = in.read(buf);
 					if(nread < 0) {
+						Log.i("SD2","nread < 0");
 						out.close();
 						in.close();
 						sock.close();
@@ -79,6 +83,7 @@ public class MbedServoServer extends MbedNetwork {
 						out = null;
 					}
 					if(nread > 0) {
+						Log.i("SD2","nread > 0");
 						// Update Mbed & progressbar
 						main.newValue(buf[0] & 0xFF);
 					}
