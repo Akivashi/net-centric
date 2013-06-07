@@ -11,7 +11,6 @@ DigitalOut myled1(LED1);
 Ticker flipper;
 float value;
 
-
 float interpolate(float x) {
 	const float values[] = {0.002, 0.0062, 0.018, 0.059, 0.105, 0.152, 0.2, 0.302, 0.504, 0.745, 0.996};
 
@@ -33,6 +32,30 @@ float interpolate(float x) {
 	return (high - low) * shift + low;
 }
 
+float rev_interpolate(float x) {
+	const float values[] = {0.002, 0.0062, 0.018, 0.059, 0.105, 0.152, 0.2, 0.302, 0.504, 0.745, 0.996};
+
+	int ind = 0;
+	for(int i = 0; i < 10; i++){
+		if(x >= values[i] && x <= values[i+1]){
+			ind = i;
+		}
+	}
+	if(x > values[10])
+		return 10;
+	if(x == values[ind])
+		return ind;
+	if(x == values[ind+1])
+		return ind+1;
+	
+//	float low = ind;
+	float difference = fabs(values[ind+1] - values[ind]);
+//	float high = ind + 1;
+	return ind + (x-values[ind])/difference;
+//	float shift = x - values[ind];
+//	return (high - low) * shift + low;
+}
+
 class AdkTerm :public AndroidAccessory
 {
 public:
@@ -50,7 +73,18 @@ public:
     virtual void setupDevice();
     virtual void resetDevice();
     virtual int callbackWrite();
+private:
+	void writeToDevice();
+	Ticker flipper2;
 };
+
+void AdkTerm::writeToDevice(){
+	float systemval = rev_interpolate(ain.read())*10;
+	u8* wbuf = _writebuff;
+	wbuf[0] = systemval;
+	this->write(wbuf,1);
+	cout << "done" << endl;
+}
 
 void AdkTerm::setupDevice() {
 }
@@ -60,7 +94,9 @@ void AdkTerm::resetDevice() {
 }
 
 int AdkTerm::callbackRead(u8 *buf, int len) {
+	cout << "got info" << endl;
 	value = interpolate((buf[0] / 10.0));
+	flipper2.attach(this, &AdkTerm::writeToDevice, 0.5);
     return 0;
 }
 
@@ -71,8 +107,8 @@ int AdkTerm::callbackWrite() {
 AdkTerm AdkTerm;
 
 void servoChanger(){
-	cout << "Value" << value << endl;
-	cout << "ain" << ain.read() << endl;
+//	cout << "Value" << value << endl;
+//	cout << "ain" << ain.read() << endl;
 	float margin = value / 20.0;
 	if(ain.read() >= value - margin && ain.read() <= value + margin) {
 		AdkTerm.right = 0;

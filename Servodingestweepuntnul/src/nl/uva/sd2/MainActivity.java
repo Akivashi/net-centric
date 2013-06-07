@@ -57,6 +57,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 		Log.i("SD2", "mbed trycatch ");
 		try {
 			mbedPort = new AdkPort(this, this);
+			new Thread(mbedPort).start();
 		} catch(IOException e) {
 			radioButton1.setChecked(false);
 			radioButton2.setChecked(true);
@@ -64,7 +65,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 			Log.i("SD2", "No mbed? ", e);
 		}
 		Log.i("SD2", "After try catch");
-		
+		/*
 		if(isLocal) {
 			netComponent = new MbedServoServer(this);
 			radioButton2.setEnabled(false);
@@ -72,7 +73,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 			netComponent = new MbedServoClient(this);
 			radioButton1.setEnabled(false);
 			
-		}
+		}*/
 		Log.i("SD2", "After if else");
 	}
 	
@@ -100,6 +101,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	}
 	
 	protected void onDestroy() {
+		super.onDestroy();
 		// Kill server or client on app stop
 		if(netComponent != null) {
 			netComponent.stop();
@@ -154,14 +156,15 @@ public class MainActivity extends Activity implements OnTouchListener,
 		if(isLocal) {
 			sendMbedChangeValue(arg1);
 		}
-		Log.i("SD2", "After islocal" + netComponent);
-		netComponent.newValue(arg1);
+		//Log.i("SD2", "After islocal" + netComponent);
+//		netComponent.newValue(arg1);
 		Log.i("SD2", "After newvalue");
 	}
 	
-	public void newValue(int value) {
-		TextView valueText = (TextView) findViewById(R.id.value);
-		valueText.setText("" + value / 10.0);
+	public void newValue(final int value) {
+		final TextView valueText = (TextView) findViewById(R.id.value);
+		valueText.post(new Runnable(){public void run(){valueText.setText("" + value / 10.0);}});
+		//valueText.setText("" + value / 10.0);
 		seekBar.setProgress(value);
 		if(isLocal) {
 			sendMbedChangeValue(value);
@@ -169,9 +172,12 @@ public class MainActivity extends Activity implements OnTouchListener,
 	}
 	
 	public void sendMbedChangeValue(int value) {
+		Log.i("SD2","Sending: " + value);
 		byte[] buf = new byte[1];
 		buf[0] = (byte) value;
+		Log.i("SD2","bytevalue: " + buf[0]);
 		mbedPort.sendBytes(buf);
+		Log.i("SD2","done sending");
 	}
 	
 	@Override
@@ -197,7 +203,10 @@ public class MainActivity extends Activity implements OnTouchListener,
 	@Override
 	public void onNew() {
 		// Called when data is send from the mbed and ready to be read
-		
-		// TODO: Implement this
+		final TextView valueText = (TextView) findViewById(R.id.systemval);
+		final byte a[] = mbedPort.readB();
+		final int b = (int)a[0];
+		final float c = b/10.0f;
+		valueText.post(new Runnable(){public void run(){valueText.setText("" + c);}});
 	}
 }
