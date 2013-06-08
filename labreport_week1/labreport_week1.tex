@@ -61,7 +61,7 @@
 	\end{titlepage}
 
 	\section{Inleiding}
-		In dit onderzoek moet een verbinding gelegd worden tussen een applicatie op een Android apparaat met een mbed microcontroller. De mbed is op zijn beurt weer aangesloten op een servo systeem waar spanning op staat. De applicatie moet signalen naar de mbed versturen om deze servo aan te kunnen sturen. Vervolgens moet het ook mogelijk gaan worden om het servo systeem met andere nodes te laten communiceren en niet alleen met de op de mbed aangesloten Android. Zulke systemen zouden het in theorie mogelijk maken overal ter wereld een systeem aan te sturen. Dit maakt dus handelingen van afstand mogelijk, wat tijd en werk kan besparen.
+		In dit onderzoek moet in een week tijd verbinding gelegd worden tussen een applicatie op een Android apparaat met een mbed microcontroller. De mbed is op zijn beurt weer aangesloten op een servo systeem waar spanning op staat. De applicatie moet signalen naar de mbed versturen om deze servo aan te kunnen sturen. Vervolgens moet het ook mogelijk gaan worden om het servo systeem met andere Android apparaten te laten communiceren en niet alleen met de op de mbed aangesloten Android. Zulke systemen zouden het in theorie mogelijk maken overal ter wereld een systeem aan te sturen. Dit maakt dus handelingen van afstand mogelijk, wat tijd en werk kan besparen.
 
 	\section{De aansluiting}
 		Het servosysteem bestaat uit een elektromotor. Op de as van de elektromotor is een potentiometer gemonteerd die de positie van de as meet. Dit servo systeem wordt met vijf draden op de mbed aangesloten. Twee van de draden regelen de stroomtoevoer. Een derde draad wordt gebruikt om de waarde van de potentiometer aan de mbed mee door te geven. Deze draad zal een geregeld voltage krijgen, afhankelijk van de stand van de as van de elektromotor. In de mbed ligt deze waarde tussen 0 en 1. Vervolgens zijn er nog twee draden die de elektromotor besturen. Een stroom op de ene draad zorgt voor een rotatie naar links, een stroom op de andere draad naar rechts. Zonder stroom op deze draden draait de elektromotor niet. De mbed is aangesloten doormiddel van een usb kabel met het Android apparaat. De mbed kan aangesloten worden op een computer om zo een nieuw programma in te laden. De computer kan hierna weer losgekoppeld worden.
@@ -161,15 +161,29 @@ De potentiometer is echter niet accuraat genoeg om deze waarde altijd exact te v
 		\caption{Layout met huidige analoge waarde}
 		\label{fig:layout2}
 	\end{figure}
-
+		\newpage
 		\subsection{Besturing vanaf tweede toestel}
-	\begin{figure}[h]
+			Als laatste moet contact tussen Androids mogelijk worden. Een voor de hand liggende oplossing is een client server model. Waarbij de Android die aangesloten is op de mbed functioneert als server en andere Android apparaten als client. Dit leek het makkelijkste te gaan via het draadloos netwerk. Eerst moet er bekeken worden of het Android apparaat een client of een server wordt. Als de Android is aangesloten op een ander apparaat door middel van een USB kabel, is het een server. Anders is het apparaat een client. Voorlopig was de server gehardcode op een vast ip adres. De eerste berichten konden al uitgewisseld worden tussen de apparaten. De gesette waarde veranderd snel en goed mee. Echter werd toen aangegeven dat het niet toegestaan was om via het draadloze netwerk onderlinge communicatie te regelen. Het moest gedaan worden via Bluetooth.\\
+Een deel moest hierdoor aangepast worden. Bluetooth gebruikt andere permissies en legt op een andere manier contact. Het gehardcode ip adres wordt vervangen voor een Bluetooth device naam met daarin een aangegeven waarde. Door de verbinding met bluetooth hebben de Android apparaten langer nodig om de juiste verbinding met elkaar te leggen. Er moet eerst gescand worden en toestemming worden verleend voordat er communicatie mogelijk is. Het omschrijven naar connectie met Bluetooth neemt veel tijd in beslag, waardoor het alleen mogelijk is om de gesette waarde heen en weer te communiceren. Deze communicatie is daarnaast niet extreem snel, waardoor er vertraging ontstaat in het verzenden van client naar server en omgekeerd. De slidebar die een nieuwe waarde wil aannemen op het tweede toestel ontvangt niet direct een nieuwe waarde waardoor de oude waarde terug wordt gecommuniceerd en de slidebar in een staat van onwetendheid komt. De slidebar schiet dan heen en weer omdat signalen elkaar tegenspreken. Het uitwisselen van gegevens is alleen getest voor koppeling tussen twee telefoons. De uiteindelijke layout is te zien in figuur \ref{fig:layout3}
+	\begin{figure}
 		\centering
 		\includegraphics[scale=0.6]{imgs/layout3.png}
-		\caption{Volledige Layout}
+		\caption{Layout voor Server en Client}
 		\label{fig:layout3}
 	\end{figure}
 	\newpage
+	\section{Resultaat}
+		\subsection{Werkende onderdelen}
+			Uiteindelijk is het mogelijk geworden om via de potentiometer de waarde van het servo systeem door te geven aan de mbed. De mbed kan aan de hand van de waarde op de potentiometer de as van het servo systeem verplaatsen in de juiste richting, om de gewenste waarde te bereiken. Deze gesette waarde wordt naar de mbed gecommuniceerd aan de hand van een Android telefoon, waar de waarde wordt geregeld door middel van twee afstel knoppen of een slidebar. De mbed communiceert naar de Android wat de huidige zichtbare analoge waarde is, dit wordt bepaald aan de invers geinterpoleerde waarde van de huidige potentiometer waarde. En tot slot is het mogelijk om de Android die aan de mbed vast zit te besturen aan de hand van een tweede Android apparaat. Op dit tweede apparaat valt alleen de gesette waarde af te lezen. Het blijft wel mogelijk de waarde te setten op de Android die wel aan de mbed vast ligt. De uiteindelijkegrafische layout is te zien in figuur \ref{fig:layout3}
+		\subsection{Verbeteringen}
+			Momenteel zitten er in het systeem nog kleine onzuiverheden, daarnaast kan het geheel nog uitgebreid worden. Hieronder bevindt zich een lijst met mogelijke aanpassingen en verbeteringen. Deze bevinden zich in een volgorde van belangrijk naar minder belangrijk.
+			\begin{itemize}
+				\item Protocol maken voor onderlinge Bluetooth communicatie om meer gegevens uit te kunnen wisselen tussen server en client
+				\item Ervoor zorgen dat de server elk willekeurig apparaat kan zijn, zonder een specifieke string in zijn device naam.
+				\item Extra mogelijkheden maken voor de applicatie, zoals foutmeldingen binnen het systeem tonen aan de gebruiker, of aangeven dat er nog gescand wordt naar andere Bluetooth systemen.
+				\item Code opschonen
+				\item Mooier maken van de layout. Bijvoorbeeld door middel van een achtergrond en een startscherm.
+			\end{itemize}
 	\section{Logboek}
 		\subsection{Maandag 3 Juni}
 			Begonnen met het vertrouwt raken met de mbed. Enkele oefenprogramma's gemaakt die aangestuurd konden worden door middel van knopjes op de mbed zelf. Een aparte verandering in voltage naar analoge waarde waar genomen. Echter nog geen mogelijkheid gehad om waardes van de mbed naar de computer te krijgen. De lab machines die gebruikt konden worden hadden hiervoor geen permissies en er was geen eigen laptop meegenomen. Als tijdige oplossing output gecreerd door signalen met de LED lampjes.
