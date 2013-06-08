@@ -1,3 +1,14 @@
+/* Net-Centic Computing 2013
+ * Filename ........ lin_interp.cpp
+ * Description ..... Creates connection between an mbed microprocessor and an Android Device
+ *
+ * Student names: Tom Peerdeman & Rene Aparicio Saez
+ * Student emails: tom.peerdeman@student.uva.nl & rene.apariciosaez@student.uva.nl
+ * Collegekaart 10266186 & 10214054
+ * Date 08 June 2013
+ *
+ */
+
 #include "mbed.h"
 #include "math.h"
 #include "AndroidAccessory.h"
