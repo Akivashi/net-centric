@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.util.Log;
 
 public class MbedServoServer extends MbedNetwork {
+	// Request code of MbedNetwork.REQUEST_ENABLE_BT + 1
 	public static final int REQUEST_DISCOVERABLE_BT = 5379;
 	
 	private BluetoothServerSocket serverSock;
@@ -18,11 +19,21 @@ public class MbedServoServer extends MbedNetwork {
 	private InputStream in;
 	private OutputStream out;
 	
+	/**
+	 * @param main
+	 *            The main activity to call with new values & start activity's
+	 *            on
+	 */
 	public MbedServoServer(MainActivity main) {
 		super(main);
 		isRunning = true;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see nl.uva.sca2.MbedNetwork#onStart()
+	 */
 	@Override
 	public void onStart() {
 		Intent discoverableIntent =
@@ -32,14 +43,20 @@ public class MbedServoServer extends MbedNetwork {
 		main.startActivityForResult(discoverableIntent, REQUEST_DISCOVERABLE_BT);
 	}
 	
+	/**
+	 * Called when this device is bluetooth discoverable
+	 */
 	public void onDiscoverable() {
 		new Thread(this).start();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Runnable#run()
+	 */
 	@Override
 	public void run() {
-		Log.i("SD2", "Starting server...");
-		
 		BluetoothSocket sock;
 		int nread;
 		byte[] buf = new byte[1];
@@ -50,32 +67,28 @@ public class MbedServoServer extends MbedNetwork {
 					adapter.listenUsingInsecureRfcommWithServiceRecord(
 							MbedNetwork.SERVICE_NAME, MbedNetwork.SD2_UUID);
 			} catch(IOException e) {
-				Log.e("SD2", "Could not open server socket", e);
+				Log.e("SCA2", "Could not open server socket", e);
 				main.onError("Network error", "Could not open the server.");
 				return;
 			}
 			
-			Log.i("SD2", "Opened bluetooth server socket with adress " + adapter.getAddress());
-
+			Log.i("SCA2", "Opened bluetooth server socket with adress "
+					+ adapter.getAddress());
+			
 			try {
-				Log.i("SD2","start try socket");
 				sock = serverSock.accept();
-				Log.i("SD2","accpeted socket");
 				in = sock.getInputStream();
-				Log.i("SD2","got inputstream");
 				out = sock.getOutputStream();
-				Log.i("SD2","got outputstream");
 			} catch(IOException e) {
-				Log.e("SD2", "Could not open accept conn", e);
+				Log.e("SCA2", "Could not open accept conn", e);
 				continue;
 			}
-			Log.i("SD2", "Client connected");
+			Log.i("SCA2", "Client connected");
 			while(isRunning) {
 				try {
-					Log.i("SD2","trying to receive something");
+					Log.i("SCA2", "trying to receive something");
 					nread = in.read(buf);
 					if(nread < 0) {
-						Log.i("SD2","nread < 0");
 						out.close();
 						in.close();
 						sock.close();
@@ -83,17 +96,21 @@ public class MbedServoServer extends MbedNetwork {
 						out = null;
 					}
 					if(nread > 0) {
-						Log.i("SD2","nread > 0");
 						// Update Mbed & progressbar
 						main.newValue(buf[0] & 0xFF);
 					}
 				} catch(IOException e) {
-					Log.e("SD2", "Could not read from conn", e);
+					Log.e("SCA2", "Could not read from conn", e);
 				}
 			}
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see nl.uva.sca2.MbedNetwork#newValue(int)
+	 */
 	@Override
 	public void newValue(int value) {
 		if(out != null) {
@@ -106,6 +123,11 @@ public class MbedServoServer extends MbedNetwork {
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see nl.uva.sca2.MbedNetwork#stop()
+	 */
 	@Override
 	public void stop() {
 		isRunning = false;

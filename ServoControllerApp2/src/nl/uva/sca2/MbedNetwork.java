@@ -15,7 +15,7 @@ public abstract class MbedNetwork implements Runnable {
 	public static final int REQUEST_ENABLE_BT = 5378;
 	// The name of our service
 	public static final String SERVICE_NAME = "SCA2-BT";
-	// Random generated UUID
+	// Random generated UUID for our service
 	public static final UUID SD2_UUID =
 		UUID.fromString("4fdabc30-cf4e-11e2-8b8b-0800200c9a66");
 	

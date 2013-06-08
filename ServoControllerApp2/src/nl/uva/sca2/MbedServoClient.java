@@ -12,6 +12,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
+/**
+ * @author René Aparicio Saez
+ * @author Tom Peerdeman
+ * 
+ */
 public class MbedServoClient extends MbedNetwork {
 	private InputStream in;
 	private OutputStream out;
@@ -19,36 +24,53 @@ public class MbedServoClient extends MbedNetwork {
 	private boolean isRunning;
 	private BroadcastReceiver mReceiver;
 	
+	/**
+	 * @param main
+	 *            The main activity to call with new values & start activity's
+	 *            on
+	 */
 	public MbedServoClient(MainActivity main) {
 		super(main);
 		isRunning = true;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see nl.uva.sca2.MbedNetwork#onStart()
+	 */
 	@Override
 	public void onStart() {
-		Log.i("SD2","Started bluetooth search");
+		Log.i("SCA2", "Started bluetooth search");
 		// Create a BroadcastReceiver for ACTION_FOUND
 		mReceiver = new BroadcastReceiver() {
-		    public void onReceive(Context context, Intent intent) {
-		        String action = intent.getAction();
-		        // When discovery finds a device
-		        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-		            // Get the BluetoothDevice object from the Intent
-		            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-	            	Log.i("SD2", "Found server for if? " + device.getName());
-		            if(device.getName().indexOf("17") > 0) {
-		            	Log.i("SD2", "Found server? " + device.getName());
-		            	onServerFound(device);
-		            }
-		        }
-		    }
+			public void onReceive(Context context, Intent intent) {
+				String action = intent.getAction();
+				// When discovery finds a device
+				if(BluetoothDevice.ACTION_FOUND.equals(action)) {
+					// Get the BluetoothDevice object from the Intent
+					BluetoothDevice device =
+						intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+					if(device.getName().indexOf("17") > 0) {
+						Log.i("SCA2", "Found server " + device.getName());
+						onServerFound(device);
+					}
+				}
+			}
 		};
 		// Register the BroadcastReceiver
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-		main.registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy*/
+		main.registerReceiver(mReceiver, filter); // Don't forget to unregister
+													// during onDestroy*/
 		adapter.startDiscovery();
 	}
 	
+	/**
+	 * Called when the bluetooth discovery has found the server
+	 * 
+	 * @param dev
+	 *            The device of the server
+	 */
 	public void onServerFound(BluetoothDevice dev) {
 		try {
 			sock = dev.createRfcommSocketToServiceRecord(MbedNetwork.SD2_UUID);
@@ -57,17 +79,20 @@ public class MbedServoClient extends MbedNetwork {
 			in = sock.getInputStream();
 			out = sock.getOutputStream();
 		} catch(IOException e) {
-			Log.e("SD2", "Could not connect", e);
 			main.onError("Network error", "Could not connect to the server.");
 		}
-		Log.i("SD2", "I connected to " + dev.getAddress() + "/" + dev.getName());
+		Log.i("SCA2",
+				"I connected to " + dev.getAddress() + "/" + dev.getName());
 		new Thread(this).start();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Runnable#run()
+	 */
 	@Override
 	public void run() {
-		Log.i("SD2", "RUN CLIENT");
-		
 		int nread;
 		byte[] buf = new byte[1];
 		while(isRunning) {
@@ -86,15 +111,20 @@ public class MbedServoClient extends MbedNetwork {
 					main.newValue(buf[0] & 0xFF);
 				}
 			} catch(IOException e) {
-				Log.e("SD2", "Could not read from conn", e);
+				Log.e("SCA2", "Could not read from conn", e);
 				return;
 			}
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see nl.uva.sca2.MbedNetwork#newValue(int)
+	 */
 	@Override
 	public void newValue(int value) {
-		if(out != null){
+		if(out != null) {
 			try {
 				out.write(value);
 				out.flush();
@@ -104,6 +134,11 @@ public class MbedServoClient extends MbedNetwork {
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see nl.uva.sca2.MbedNetwork#stop()
+	 */
 	@Override
 	public void stop() {
 		isRunning = false;
@@ -115,6 +150,7 @@ public class MbedServoClient extends MbedNetwork {
 			} catch(IOException idontcare) {
 			}
 		}
+		
 		if(mReceiver != null) {
 			main.unregisterReceiver(mReceiver);
 		}
