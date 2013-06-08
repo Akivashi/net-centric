@@ -16,7 +16,7 @@
  * Writing is done with sendString(String string) or sendBytes(byte[] bytes)
  */
 
-package nl.uva.sd2;
+package nl.uva.sca2;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;

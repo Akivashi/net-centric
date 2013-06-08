@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="nl.uva.servodingestweepuntnul"
+    package="nl.uva.sca2"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -8,6 +8,7 @@
         android:minSdkVersion="14"
         android:targetSdkVersion="14" />
     <uses-permission android:name="android.permission.BLUETOOTH"></uses-permission>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"></uses-permission>
 
     <application
         android:allowBackup="true"
@@ -15,7 +16,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="nl.uva.sd2.MainActivity"
+            android:name="nl.uva.sca2.MainActivity"
             android:label="@string/app_name"
             android:configChanges="orientation"
 			android:screenOrientation="portrait" >

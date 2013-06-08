@@ -1,4 +1,4 @@
-package nl.uva.sd2;
+package nl.uva.sca2;
 
 /*
  * AdkPort RingBuffer library

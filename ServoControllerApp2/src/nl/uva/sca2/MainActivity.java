@@ -1,8 +1,7 @@
-package nl.uva.sd2;
+package nl.uva.sca2;
 
 import java.io.IOException;
 
-import nl.uva.servodingestweepuntnul.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -16,17 +15,21 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
+/**
+ * @author René Aparicio Saez
+ * @author Tom Peerdeman
+ * 
+ */
 public class MainActivity extends Activity implements OnTouchListener,
-		OnSeekBarChangeListener, OnCheckedChangeListener,
+		OnSeekBarChangeListener,
 		AdkPort.MessageNotifier {
 	private AdkPort mbedPort;
+	
 	private RadioButton radioButton1;
 	private RadioButton radioButton2;
 	private Button left;
@@ -36,10 +39,15 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private boolean isLocal;
 	private MbedNetwork netComponent;
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.i("SD2", "ik begin");
+		Log.i("SCA2", "Starting ServoControllerApp 2");
 		isLocal = true;
 		
 		setContentView(R.layout.activity_main);
@@ -53,9 +61,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 		
 		radioButton1 = (RadioButton) findViewById(R.id.radio0);
 		radioButton2 = (RadioButton) findViewById(R.id.radio1);
-		radioButton1.setOnCheckedChangeListener(this);
-		radioButton2.setOnCheckedChangeListener(this);
-		Log.i("SD2", "mbed trycatch ");
 		try {
 			mbedPort = new AdkPort(this, this);
 			new Thread(mbedPort).start();
@@ -63,9 +68,10 @@ public class MainActivity extends Activity implements OnTouchListener,
 			radioButton1.setChecked(false);
 			radioButton2.setChecked(true);
 			isLocal = false;
-			Log.i("SD2", "No mbed? ", e);
 		}
-		Log.i("SD2", "After try catch");
+		
+		// Start the network component depending on if this app is server or
+		// client
 		if(isLocal) {
 			netComponent = new MbedServoServer(this);
 			radioButton2.setEnabled(false);
@@ -77,9 +83,17 @@ public class MainActivity extends Activity implements OnTouchListener,
 			systemval.setVisibility(View.INVISIBLE);
 			sys.setVisibility(View.INVISIBLE);
 		}
-		Log.i("SD2", "After if else");
 	}
 	
+	/**
+	 * Notify the user an error has occurred.
+	 * When the user closes the dialog the app is killed.
+	 * 
+	 * @param title
+	 *            The title of the error dialog
+	 * @param error
+	 *            The text of the error dialog
+	 */
 	public void onError(String title, String error) {
 		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
 		
@@ -103,6 +117,11 @@ public class MainActivity extends Activity implements OnTouchListener,
 		alertBuilder.create().show();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onDestroy()
+	 */
 	protected void onDestroy() {
 		super.onDestroy();
 		// Kill server or client on app stop
@@ -116,6 +135,11 @@ public class MainActivity extends Activity implements OnTouchListener,
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -123,6 +147,12 @@ public class MainActivity extends Activity implements OnTouchListener,
 		return true;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.view.View.OnTouchListener#onTouch(android.view.View,
+	 * android.view.MotionEvent)
+	 */
 	@Override
 	public boolean onTouch(View v, MotionEvent arg1) {
 		if(arg1.getAction() == MotionEvent.ACTION_DOWN)
@@ -150,59 +180,84 @@ public class MainActivity extends Activity implements OnTouchListener,
 		return true;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.widget.SeekBar.OnSeekBarChangeListener#onProgressChanged(android
+	 * .widget.SeekBar, int, boolean)
+	 */
 	@Override
 	public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
 		// Update the value of the TextView to the new value of the seekBar
 		TextView value = (TextView) findViewById(R.id.value);
 		value.setText("" + arg1 / 10.0);
-		Log.i("SD2", "before islocal");
+		
 		if(isLocal) {
 			sendMbedChangeValue(arg1);
 		}
-		Log.i("SD2", "After islocal" + netComponent);
+		
 		netComponent.newValue(arg1);
-		Log.i("SD2", "After newvalue");
 	}
 	
+	/**
+	 * Called from the networking classes. Called when a new value is received.
+	 * 
+	 * @param value
+	 *            The new value
+	 */
 	public void newValue(final int value) {
 		final TextView valueText = (TextView) findViewById(R.id.value);
-		valueText.post(new Runnable(){public void run(){valueText.setText("" + value / 10.0);}});
-
+		valueText.post(new Runnable() {
+			public void run() {
+				valueText.setText("" + value / 10.0);
+			}
+		});
+		
 		seekBar.setProgress(value);
 		if(isLocal) {
 			sendMbedChangeValue(value);
 		}
 	}
 	
+	/**
+	 * Send a value to the mbed via the usb connection.
+	 * 
+	 * @param value
+	 *            The value to send.
+	 */
 	public void sendMbedChangeValue(int value) {
-		Log.i("SD2","Sending: " + value);
 		byte[] buf = new byte[1];
 		buf[0] = (byte) value;
-		Log.i("SD2","bytevalue: " + buf[0]);
 		mbedPort.sendBytes(buf);
-		Log.i("SD2","done sending");
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.widget.SeekBar.OnSeekBarChangeListener#onStartTrackingTouch(android
+	 * .widget.SeekBar)
+	 */
 	@Override
 	public void onStartTrackingTouch(SeekBar arg0) {
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.widget.SeekBar.OnSeekBarChangeListener#onStopTrackingTouch(android
+	 * .widget.SeekBar)
+	 */
 	@Override
 	public void onStopTrackingTouch(SeekBar arg0) {
 	}
 	
 	@Override
-	public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
-		if(radioButton1.getId() == arg0.getId()) {
-			radioButton2.setChecked(!arg1);
-		} else if(radioButton2.getId() == arg0.getId()) {
-			radioButton1.setChecked(!arg1);
-		}
-	}
-	
-	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.i("SD2","requestcode: " + requestCode + " resultcode: " + resultCode);
+		Log.i("SD2", "requestcode: " + requestCode + " resultcode: "
+				+ resultCode);
 		if(requestCode == MbedNetwork.REQUEST_ENABLE_BT) {
 			if(resultCode == RESULT_OK) {
 				netComponent.onStart();
@@ -229,8 +284,12 @@ public class MainActivity extends Activity implements OnTouchListener,
 		// Called when data is send from the mbed and ready to be read
 		final TextView valueText = (TextView) findViewById(R.id.systemval);
 		final byte a[] = mbedPort.readB();
-		final int b = (int)a[0];
-		final float c = b/10.0f;
-		valueText.post(new Runnable(){public void run(){valueText.setText("" + c);}});
+		final int b = (int) a[0];
+		final float c = b / 10.0f;
+		valueText.post(new Runnable() {
+			public void run() {
+				valueText.setText("" + c);
+			}
+		});
 	}
 }
