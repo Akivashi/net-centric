@@ -16,6 +16,7 @@ public class MbedServoServer extends MbedNetwork {
 	
 	private BluetoothServerSocket serverSock;
 	private boolean isRunning;
+	private BluetoothSocket sock;
 	private InputStream in;
 	private OutputStream out;
 	
@@ -57,12 +58,12 @@ public class MbedServoServer extends MbedNetwork {
 	 */
 	@Override
 	public void run() {
-		BluetoothSocket sock;
 		int nread;
 		byte[] buf = new byte[1];
 		
 		while(isRunning) {
 			try {
+				// Open a new bluetooth server socket
 				serverSock =
 					adapter.listenUsingInsecureRfcommWithServiceRecord(
 							MbedNetwork.SERVICE_NAME, MbedNetwork.SD2_UUID);
@@ -79,6 +80,9 @@ public class MbedServoServer extends MbedNetwork {
 				sock = serverSock.accept();
 				in = sock.getInputStream();
 				out = sock.getOutputStream();
+				// Close the server socket, only one connection per server
+				// socket is supported by bluetooth
+				serverSock.close();
 			} catch(IOException e) {
 				Log.e("SCA2", "Could not open accept conn", e);
 				continue;
@@ -86,9 +90,9 @@ public class MbedServoServer extends MbedNetwork {
 			Log.i("SCA2", "Client connected");
 			while(isRunning) {
 				try {
-					Log.i("SCA2", "trying to receive something");
 					nread = in.read(buf);
 					if(nread < 0) {
+						// EOF, close the socket
 						out.close();
 						in.close();
 						sock.close();
@@ -138,10 +142,11 @@ public class MbedServoServer extends MbedNetwork {
 			}
 		}
 		
-		if(in != null && out != null) {
+		if(sock != null && in != null && out != null) {
 			try {
 				in.close();
 				out.close();
+				sock.close();
 			} catch(IOException idontcare) {
 			}
 		}

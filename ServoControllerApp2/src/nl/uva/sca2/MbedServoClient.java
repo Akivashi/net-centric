@@ -60,8 +60,8 @@ public class MbedServoClient extends MbedNetwork {
 		};
 		// Register the BroadcastReceiver
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-		main.registerReceiver(mReceiver, filter); // Don't forget to unregister
-													// during onDestroy*/
+		main.registerReceiver(mReceiver, filter);
+		// Start device discovery
 		adapter.startDiscovery();
 	}
 	
@@ -73,8 +73,11 @@ public class MbedServoClient extends MbedNetwork {
 	 */
 	public void onServerFound(BluetoothDevice dev) {
 		try {
+			// Create the socket
 			sock = dev.createRfcommSocketToServiceRecord(MbedNetwork.SD2_UUID);
+			// Stop the discovery, it slow the connecting down
 			adapter.cancelDiscovery();
+			// Connect to the device
 			sock.connect();
 			in = sock.getInputStream();
 			out = sock.getOutputStream();
@@ -99,6 +102,7 @@ public class MbedServoClient extends MbedNetwork {
 			try {
 				nread = in.read(buf);
 				if(nread < 0) {
+					// EOF, close the socket
 					out.close();
 					in.close();
 					sock.close();
@@ -142,6 +146,7 @@ public class MbedServoClient extends MbedNetwork {
 	@Override
 	public void stop() {
 		isRunning = false;
+		// Close the socket if open
 		if(sock != null && in != null && out != null) {
 			try {
 				in.close();
@@ -151,6 +156,7 @@ public class MbedServoClient extends MbedNetwork {
 			}
 		}
 		
+		// Unregister the bluetooth discovery receiver
 		if(mReceiver != null) {
 			main.unregisterReceiver(mReceiver);
 		}
